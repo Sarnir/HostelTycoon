@@ -17,8 +17,6 @@ public class Hostel : MonoBehaviour
 
     int money;
     
-    int bedBasePrice;
-
     int pricePerNight;
     int dailyExpenses;
 
@@ -34,11 +32,13 @@ public class Hostel : MonoBehaviour
     public Text DayCounter;
     public Text MoneyCounter;
     public Text GuestsCounter;
-    public Text BedsCounter;
+    public Text SpaceCounter;
     public Text BedPriceText;
 
     private void Start()
     {
+        GlobalAccess.SetItemDefinitions(new ItemDefinitions());
+
         property = new Property();
 
         day = 1;
@@ -46,14 +46,10 @@ public class Hostel : MonoBehaviour
         dailyExpenses = 10;
         pricePerNight = 30;
 
-        bedBasePrice = 50;
-
         guestsList = new List<Guest>();
 
         DayCounter.text = "Day " + day;
         UpdateUI();
-
-        UpdateBedPrice();
     }
 
     public void ProcessDay()
@@ -70,7 +66,7 @@ public class Hostel : MonoBehaviour
         }
 
         // ludzie wchodzą
-        int guestsCheckingIn = Random.Range(0, property.BedQuantity-guestsList.Count);
+        int guestsCheckingIn = Random.Range(0, property.FreeBedsCount + 1);
 
         for(int i = 0; i < guestsCheckingIn; i++)
         {
@@ -94,21 +90,24 @@ public class Hostel : MonoBehaviour
     void AddGuest(Guest guest)
     {
         guestsList.Add(guest);
-        property.GetBeds().Find(x => x.IsTaken == false).Guest = guest;
+        var bed = property.FindFreeBed();
+        guest.BedNo = bed.BedNo;
+        bed.Guest = guest;
     }
 
     void RemoveGuest(Guest guest)
     {
         guestsList.Remove(guest);
-        property.ClearBed(guest);
+        property.ClearBed(guest.BedNo);
     }
 
     public void BuyNewBed()
     {
-        int cost = bedBasePrice * property.BedQuantity;
+        var bed = GlobalAccess.GetItemDefinitions().GetDefinition(0);
+        int cost = bed.Price;
         if (money >= cost)
         {
-            if (property.AddNewBed())
+            if (property.AddNewItem(new Bed(0)))
             {
                 money -= cost;
                 UpdateUI();
@@ -116,21 +115,23 @@ public class Hostel : MonoBehaviour
         }
     }
 
-    public void ShowGuestList()
+    public void BuyNewItem(int id)
     {
-        var beds = property.GetBeds();
-        foreach(var bed in beds)
+        var item = GlobalAccess.GetItemDefinitions().GetDefinition(id);
+        int cost = item.Price;
+        if (money >= cost)
         {
-            if(bed.IsTaken)
+            if (property.AddNewItem(item.CreateInstance()))
             {
-                Debug.Log("Guest " + bed.Guest.Name + ", staying for " + bed.Guest.LengthOfStay + " nights");
+                money -= cost;
+                UpdateUI();
             }
         }
     }
 
-    public void GetGuestsList()
+    public Item[] GetAllItems()
     {
-        //property.
+        return property.GetAllItems();
     }
 
     void UpdateMoneyCounter()
@@ -138,20 +139,14 @@ public class Hostel : MonoBehaviour
         MoneyCounter.text = money + "$";
     }
 
-    void UpdateBedCounter()
+    void UpdateSpaceCounter()
     {
-        BedsCounter.text = "Beds: " + property.BedQuantity + "/" + property.BedLimit;
-    }
-
-    void UpdateBedPrice()
-    {
-        BedPriceText.text = "Buy bed for " + (bedBasePrice * property.BedQuantity);
+        SpaceCounter.text = "Space: " + property.CurrentSpace + "/" + property.TotalSpace;
     }
 
     void UpdateUI()
     {
         UpdateMoneyCounter();
-        UpdateBedCounter();
-        UpdateBedPrice();
+        UpdateSpaceCounter();
     }
 }

@@ -8,50 +8,65 @@ public class Property
     // cena wynajmu/kupna ?
     // inventory
 
-    int bedLimit = 10;
+    int totalSpace = 30;
 
-    List<Bed> beds;
+    Inventory inventory;
 
-    public int BedLimit
+    public int TotalSpace
     {
-        get { return bedLimit; }
+        get { return totalSpace; }
     }
 
-    public int BedQuantity
+    public int AvailableSpace
     {
-        get { return beds.Count; }
+        get { return totalSpace - inventory.CurrentSpace; }
+    }
+
+    public int CurrentSpace
+    {
+        get { return inventory.CurrentSpace; }
+    }
+
+    public int FreeBedsCount
+    {
+        get { return inventory.GetAllBeds().FindAll(x => x.IsTaken == false).Count; }
     }
 
     public Property()
     {
-        beds = new List<Bed>(4)
-        {
-            new Bed(),
-            new Bed(),
-            new Bed(),
-            new Bed()
-        };
+        inventory = new Inventory();
     }
 
-    public List<Bed> GetBeds()
+    public bool AddNewItem(Item newItem)
     {
-        return beds;
-    }
-
-    public bool AddNewBed()
-    {
-        if (BedQuantity < bedLimit)
+        if (newItem.Definition.TilesNeeded <= AvailableSpace)
         {
-            beds.Add(new Bed());
+            inventory.AddNewItem(newItem);
             return true;
         }
 
         return false;
     }
 
-    public void ClearBed(Guest guest)
+    public void RemoveItem(Item item)
     {
-        var bed = beds.Find(x => x.Guest == guest);
+        inventory.RemoveItem(item);
+    }
+
+    public void ClearBed(int bedNo)
+    {
+        Bed bed = inventory.GetBed(bedNo);
+
         bed.Guest = null;
+    }
+
+    public Bed FindFreeBed()
+    {
+        return inventory.GetAllBeds().Find(x => x.IsTaken == false);
+    }
+
+    public Item[] GetAllItems()
+    {
+        return inventory.GetAllItems();
     }
 }
