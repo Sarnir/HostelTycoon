@@ -75,4 +75,14 @@ public class Inventory
     {
         return items.ToArray();
     }
+
+    public Item FindItem(ItemId id)
+    {
+        return items.Find(item => item.Definition.Id == id);
+    }
+
+    public Item[] FindItems(ItemId id)
+    {
+        return items.FindAll(item => item.Definition.Id == id).ToArray();
+    }
 }

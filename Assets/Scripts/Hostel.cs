@@ -13,27 +13,41 @@ public class Hostel : MonoBehaviour
     // ceny za łóżka
     // wydatki
 
+    [SerializeField]
+    TopBar topBar = default;
+
     int day;
 
-    int money;
+    float _money;
+    float money { get { return _money; } set { _money = value; topBar.UpdateMoneyCounter(_money); } }
     
     int pricePerNight;
-    int dailyExpenses;
+    int dailyExpensesBase;
+
+    float pointsGiven;
+    int reviewsCount;
+
+    float Rating { get { return pointsGiven / (float)reviewsCount; } }
 
     Property property;
 
     List<Guest> guestsList;
+    List<Employee> staff;
+
+    public float Cleanliness;
+
+    public delegate void DateEvent();
+    public event DateEvent OnNewWeek;
 
     public Guest[] Guests
     {
         get { return guestsList.ToArray(); }
     }
 
-    public Text DayCounter;
-    public Text MoneyCounter;
-    public Text GuestsCounter;
-    public Text SpaceCounter;
-    public Text BedPriceText;
+    public Employee[] Staff
+    {
+        get { return staff.ToArray(); }
+    }
 
     private void Start()
     {
@@ -42,14 +56,17 @@ public class Hostel : MonoBehaviour
         property = new Property();
 
         day = 1;
-        money = 1000;
-        dailyExpenses = 10;
+        money = 3000;
+        dailyExpensesBase = 10;
         pricePerNight = 30;
+        Cleanliness = 1;
 
         guestsList = new List<Guest>();
+        staff = new List<Employee>();
 
-        DayCounter.text = "Day " + day;
-        UpdateUI();
+        topBar.UpdateDayCounter(day);
+        topBar.UpdateGuestsCounter(0);
+        topBar.UpdateSpaceCounter(property.CurrentSpace, property.TotalSpace);
     }
 
     public void ProcessDay()
@@ -61,30 +78,54 @@ public class Hostel : MonoBehaviour
 
             if (guest.LengthOfStay < 1)
             {
+                // ziomek wystawia ocenę
+                AddRating(guest.RateHostel());
+
                 RemoveGuest(guest);
             }
         }
 
         // ludzie wchodzą
         int guestsCheckingIn = Random.Range(0, property.FreeBedsCount + 1);
+        int guestsProfit = 0;
 
         for(int i = 0; i < guestsCheckingIn; i++)
         {
-            Guest newGuest = new Guest() { LengthOfStay = Random.Range(1, 4) };
+            Guest newGuest = new Guest(this) { LengthOfStay = Random.Range(1, 4) };
 
             AddGuest(newGuest);
 
-            money += newGuest.LengthOfStay* pricePerNight;
+            guestsProfit += newGuest.LengthOfStay* pricePerNight;
         }
 
-        GuestsCounter.text = "Guests: " + guestsList.Count;
+        // ludzie robią rzeczy
+        int guestsCount = Guests.Length;
+        for (int i = 0; i < guestsCount; i++)
+        {
+            Guests[i].SpendDay();
+        }
 
-        money -= dailyExpenses * guestsList.Count;
+        LogIncome(guestsProfit, "guests staying");
+        money += guestsProfit;
 
-        UpdateMoneyCounter();
+        topBar.UpdateGuestsCounter(guestsList.Count);
 
-        day++;
-        DayCounter.text = "Day " + day;
+        int dailyExpenses = dailyExpensesBase * guestsList.Count;
+
+        LogExpenses(dailyExpenses, "maintenance");
+        money -= dailyExpenses;
+
+        PayStaff();
+
+        NextDay();
+    }
+
+    public void AddRating(float points)
+    {
+        pointsGiven += points;
+        reviewsCount++;
+
+        topBar.UpdateRatingCounter(Rating);
     }
 
     void AddGuest(Guest guest)
@@ -95,27 +136,56 @@ public class Hostel : MonoBehaviour
         bed.Guest = guest;
     }
 
+    void NextDay()
+    {
+        day++;
+        topBar.UpdateDayCounter(day);
+
+        if(day%7 == 1)
+        {
+            OnNewWeek?.Invoke();
+        }
+    }
+
+    public void HireEmployee(Employee newEmployee)
+    {
+        staff.Add(newEmployee);
+    }
+
+    public void FireEmployee(Employee employee)
+    {
+        staff.Remove(employee);
+    }
+
+    void PayStaff()
+    {
+        int staffExpenses = 0;
+        foreach(var employee in staff)
+        {
+            staffExpenses += employee.Wage;
+        }
+
+        LogExpenses(staffExpenses, "staff wages");
+        money -= staffExpenses;
+    }
+
+    void LogExpenses(int expenses, string type)
+    {
+        Debug.Log($"<color=red>Paid {expenses}$ for {type}</color>");
+    }
+
+    void LogIncome(int income, string type)
+    {
+        Debug.Log($"<color=green>Got {income}$ from {type}</color>");
+    }
+
     void RemoveGuest(Guest guest)
     {
         guestsList.Remove(guest);
         property.ClearBed(guest.BedNo);
     }
 
-    public void BuyNewBed()
-    {
-        var bed = GlobalAccess.GetItemDefinitions().GetDefinition(0);
-        int cost = bed.Price;
-        if (money >= cost)
-        {
-            if (property.AddNewItem(new Bed(0)))
-            {
-                money -= cost;
-                UpdateUI();
-            }
-        }
-    }
-
-    public void BuyNewItem(int id)
+    public void BuyNewItem(ItemId id)
     {
         var item = GlobalAccess.GetItemDefinitions().GetDefinition(id);
         int cost = item.Price;
@@ -124,7 +194,7 @@ public class Hostel : MonoBehaviour
             if (property.AddNewItem(item.CreateInstance()))
             {
                 money -= cost;
-                UpdateUI();
+                topBar.UpdateSpaceCounter(property.CurrentSpace, property.TotalSpace);
             }
         }
     }
@@ -133,20 +203,13 @@ public class Hostel : MonoBehaviour
     {
         return property.GetAllItems();
     }
-
-    void UpdateMoneyCounter()
+    public Item FindItem(ItemId id)
     {
-        MoneyCounter.text = money + "$";
+        return property.FindItem(id);
     }
 
-    void UpdateSpaceCounter()
+    public Item[] FindItems(ItemId id)
     {
-        SpaceCounter.text = "Space: " + property.CurrentSpace + "/" + property.TotalSpace;
-    }
-
-    void UpdateUI()
-    {
-        UpdateMoneyCounter();
-        UpdateSpaceCounter();
+        return property.FindItems(id);
     }
 }

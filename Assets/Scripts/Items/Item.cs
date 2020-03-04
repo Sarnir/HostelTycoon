@@ -8,13 +8,13 @@ public class Item
     // stół bilardowy
     // lodówka z napojami
 
-    private int id;
+    private ItemId id;
 
     public ItemDef Definition { get { return GlobalAccess.GetItemDefinitions().GetDefinition(id); } }
 
     Vector2 position; // gdzie stoi na mapce
 
-    public Item(int itemId)
+    public Item(ItemId itemId)
     {
         id = itemId;
     }
@@ -22,8 +22,8 @@ public class Item
     // zazwyczaj to goście lub staff będą korzystać z rzeczy
     // to oni będą wywoływać tę metodę i np. zostawiać piniondze w automacie
     // lub pójdą spać i dostaną pluskwy xD
-    public virtual void Interact()
+    public virtual bool Use(Person user)
     {
-
+        return true;
     }
 }

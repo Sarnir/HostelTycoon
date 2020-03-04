@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class GuestsListPanel: BaseListPanel
 {
     [SerializeField]
-    GuestPanel GuestPanelPrefab = default;
+    PersonPanel GuestPanelPrefab = default;
 
     protected override void Init()
     {
@@ -20,9 +20,7 @@ public class GuestsListPanel: BaseListPanel
         foreach(var guest in guests)
         {
             var newGuestPanel = Instantiate(GuestPanelPrefab, scrollRectContent);
-            newGuestPanel.Avatar.sprite = guest.Avatar;
-            newGuestPanel.NameText.text = guest.Name;
-            newGuestPanel.LengthOfStayText.text = "staying for " + guest.LengthOfStay + " nights";
+            newGuestPanel.Init(guest);
         }
     }
 }

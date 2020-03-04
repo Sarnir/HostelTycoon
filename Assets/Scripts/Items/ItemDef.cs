@@ -1,15 +1,8 @@
 ﻿using UnityEngine;
 
-public enum ItemType
-{
-    Generic,
-    Bed
-}
-
 public class ItemDef
 {
-    public int Id { get; private set; }
-    public ItemType Type { get; private set; }
+    public ItemId Id { get; private set; }
     public string Name { get; private set; }
     public int Price { get; private set; }
     public Sprite Avatar { get; private set; }
@@ -17,10 +10,9 @@ public class ItemDef
 
     // typ przedmiotu
 
-    public ItemDef(int id, ItemType type, string name, int price, int tiles, string avatarPath)
+    public ItemDef(ItemId id, string name, int price, int tiles, string avatarPath)
     {
         Id = id;
-        Type = type;
         Name = name;
         Price = price;
         TilesNeeded = tiles;
@@ -31,16 +23,20 @@ public class ItemDef
     {
         Item newInstance = null;
 
-        switch (Type)
+        switch (Id)
         {
-            case ItemType.Generic:
-                newInstance = new Item(Id);
-                break;
-            case ItemType.Bed:
+            case ItemId.CheapBed:
+            case ItemId.LuxuryBed:
+            case ItemId.BunkBed:
                 newInstance = new Bed(Id);
                 break;
+            case ItemId.VendingMachine:
+                newInstance = new VendingMachine(Id);
+                break;
+            default:
+                newInstance = new Item(Id);
+                break;
         }
-        Bed bed = new Bed(0);
 
         return newInstance;
     }

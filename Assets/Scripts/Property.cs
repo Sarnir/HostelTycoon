@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -68,5 +69,15 @@ public class Property
     public Item[] GetAllItems()
     {
         return inventory.GetAllItems();
+    }
+
+    public Item FindItem(ItemId id)
+    {
+        return inventory.FindItem(id);
+    }
+
+    public Item[] FindItems(ItemId id)
+    {
+        return inventory.FindItems(id);
     }
 }

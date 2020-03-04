@@ -16,7 +16,7 @@ public class ItemPanel : MonoBehaviour
     [SerializeField]
     Text SpaceRequired = default;
 
-    int itemDefId;
+    ItemId itemDefId;
 
     public void Init(ItemDef definition, bool showPrice)
     {
@@ -30,7 +30,7 @@ public class ItemPanel : MonoBehaviour
         BuyButton.gameObject.SetActive(showPrice);
     }
 
-    public void OnBuyClicked(Action<int> onBuyClick)
+    public void OnBuyClicked(Action<ItemId> onBuyClick)
     {
         BuyButton.onClick.AddListener(delegate { onBuyClick(itemDefId); });
     }

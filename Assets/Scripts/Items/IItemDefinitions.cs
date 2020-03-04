@@ -2,7 +2,7 @@
 
 public interface IItemDefinitions
 {
-    ItemDef GetDefinition(int id);
+    ItemDef GetDefinition(ItemId id);
 
     ItemDef[] GetAllDefinitions();
 }

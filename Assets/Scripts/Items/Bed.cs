@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Bed: Item
+public class Bed : Item
 {
     public bool IsTaken
     {
@@ -15,13 +15,14 @@ public class Bed: Item
 
     public int BedNo;
 
-    public Bed(int id): base(id)
+    public Bed(ItemId id): base(id)
     {
     }
 
-    public override void Interact()
+    public override bool Use(Person user)
     {
         // zmniejsz czystość?
         // rzuć kością na pluskwy xD
+        return true;
     }
 }

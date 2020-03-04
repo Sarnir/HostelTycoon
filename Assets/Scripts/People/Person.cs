@@ -67,10 +67,32 @@ public class Person
     public Sex Sex;
     public Sprite Avatar;
 
-    public Person()
+    protected Hostel hostel;
+
+    float money;
+
+    public Person(Hostel hostelToStayIn)
     {
         Name = names[Random.Range(0, names.Length)];
         Sex = Random.value > 0.5f ? Sex.Male : Sex.Female;
         Avatar = Resources.Load<Sprite>("Avatars/avatar" + Random.Range(1, 6));
+
+        money = Random.Range(20f, 100f);
+
+        hostel = hostelToStayIn;
+    }
+
+    public bool Pay(float price)
+    {
+        if (money >= price)
+        {
+            money -= price;
+            return true;
+        }
+        else
+        {
+            Debug.Log($"{ Name } can't pay { price }, he has only { money }");
+            return false;
+        }
     }
 }

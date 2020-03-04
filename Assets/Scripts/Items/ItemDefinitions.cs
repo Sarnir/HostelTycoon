@@ -1,5 +1,14 @@
 ﻿using UnityEngine;
 
+public enum ItemId
+{
+    CheapBed = 0,
+    LuxuryBed,
+    BunkBed,
+    PoolTable,
+    VendingMachine
+}
+
 public class ItemDefinitions: IItemDefinitions
 {
     ItemDef[] definitions;
@@ -13,17 +22,17 @@ public class ItemDefinitions: IItemDefinitions
     {
         definitions = new ItemDef[]
         {
-            new ItemDef(0, ItemType.Bed, "Cheap Bed", 400, 6, "bedCheap"),
-            new ItemDef(1, ItemType.Bed, "Luxury Bed", 800, 6, "bedLuxury"),
-            new ItemDef(2, ItemType.Bed, "Bunk Bed", 600, 6, "bedBunk"),
-            new ItemDef(3, ItemType.Generic ,"Pool Table", 1000, 6, "poolTable"),
-            new ItemDef(4, ItemType.Generic, "Vending Machine", 1200, 2, "vending")
+            new ItemDef(ItemId.CheapBed, "Cheap Bed", 400, 6, "bedCheap"),
+            new ItemDef(ItemId.LuxuryBed, "Luxury Bed", 800, 6, "bedLuxury"),
+            new ItemDef(ItemId.BunkBed, "Bunk Bed", 600, 6, "bedBunk"),
+            new ItemDef(ItemId.PoolTable, "Pool Table", 1000, 6, "poolTable"),
+            new ItemDef(ItemId.VendingMachine, "Vending Machine", 1200, 2, "vending")
         };
     }
 
-    public ItemDef GetDefinition(int id)
+    public ItemDef GetDefinition(ItemId id)
     {
-        return definitions[id];
+        return definitions[(int)id];
     }
 
     public ItemDef[] GetAllDefinitions()

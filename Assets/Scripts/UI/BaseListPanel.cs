@@ -23,7 +23,7 @@ public class BaseListPanel: UIPanel
         scrollRectContent = gameObject.GetComponentInChildren<ScrollRect>().content;
     }
 
-    void RefreshContent()
+    public virtual void RefreshContent()
     {
         foreach (RectTransform child in scrollRectContent)
         {
