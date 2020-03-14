@@ -27,7 +27,7 @@ public class MyStaffPanel : BaseListPanel
     Employee currentEmployee;
 
     [SerializeField]
-    ContextMenu contextMenu;
+    ContextMenu contextMenu = default;
 
 
     protected override void Init()
@@ -99,13 +99,21 @@ public class MyStaffPanel : BaseListPanel
         // BARDZO ŹLE XD
         contextMenu.ClearMenu();
 
-        foreach(var task in Enum.GetNames(typeof(TaskType)))
+        var taskNames = Enum.GetNames(typeof(TaskType));
+        for (int i = 0; i < taskNames.Length; i++)
         {
-            contextMenu.AddOption(task, currentEmployee.GetCurrentTask().ToString() == task);
+            contextMenu.AddOption(taskNames[i], i,
+                currentEmployee.GetCurrentTask() == (TaskType)i,
+                ContextMenuCallback);
         }
 
         contextMenu.Open();
+    }
 
-        //currentEmployee.AssignTask(TaskType.Cleaning);
+    void ContextMenuCallback(int id)
+    {
+        currentEmployee.AssignTask((TaskType)id);
+        titleText.text = currentEmployee.Title;
     }
 }
+

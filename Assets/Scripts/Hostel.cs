@@ -5,24 +5,15 @@ using UnityEngine.UI;
 
 public class Hostel : MonoBehaviour
 {
-    // inventory
-    // ilość pokoi
-    // ilość łóżek
-    // ilość kasy
-    // ilość gości
-    // ceny za łóżka
-    // wydatki
-
     [SerializeField]
     TopBar topBar = default;
 
     int day;
 
-    float _money;
-    float money { get { return _money; } set { _money = value; topBar.UpdateMoneyCounter(_money); } }
+    Wallet wallet;
     
-    int pricePerNight;
-    int dailyExpensesBase;
+    Price pricePerNight;
+    float dailyExpensesBase;
 
     float pointsGiven;
     int reviewsCount;
@@ -34,7 +25,9 @@ public class Hostel : MonoBehaviour
     List<Guest> guestsList;
     List<Employee> staff;
 
-    public float Cleanliness;
+    public HostelQualities Qualities { get; private set; }
+
+    public World World;
 
     public delegate void DateEvent();
     public event DateEvent OnNewWeek;
@@ -52,18 +45,21 @@ public class Hostel : MonoBehaviour
     private void Start()
     {
         GlobalAccess.SetItemDefinitions(new ItemDefinitions());
+        GlobalAccess.SetPricesCollection(new PricesDefinitions());
 
         property = new Property();
+        World = FindObjectOfType<World>();
 
         day = 1;
-        money = 3000;
+        wallet = new Wallet(13000f, money => { topBar.UpdateMoneyCounter(money); });
         dailyExpensesBase = 10;
-        pricePerNight = 30;
-        Cleanliness = 1;
+        pricePerNight = GlobalAccess.GetAllPrices().GetPrice(PriceId.BedPerNight);
+
+        Qualities = new HostelQualities();
 
         guestsList = new List<Guest>();
         staff = new List<Employee>();
-
+        
         topBar.UpdateDayCounter(day);
         topBar.UpdateGuestsCounter(0);
         topBar.UpdateSpaceCounter(property.CurrentSpace, property.TotalSpace);
@@ -85,9 +81,15 @@ public class Hostel : MonoBehaviour
             }
         }
 
+        // pracownicy pracują
+        foreach(var employee in staff)
+        {
+            employee.Work();
+        }
+
         // ludzie wchodzą
         int guestsCheckingIn = Random.Range(0, property.FreeBedsCount + 1);
-        int guestsProfit = 0;
+        float guestsProfit = 0;
 
         for(int i = 0; i < guestsCheckingIn; i++)
         {
@@ -95,7 +97,7 @@ public class Hostel : MonoBehaviour
 
             AddGuest(newGuest);
 
-            guestsProfit += newGuest.LengthOfStay* pricePerNight;
+            guestsProfit += newGuest.LengthOfStay* pricePerNight.CurrentPrice;
         }
 
         // ludzie robią rzeczy
@@ -105,15 +107,13 @@ public class Hostel : MonoBehaviour
             Guests[i].SpendDay();
         }
 
-        LogIncome(guestsProfit, "guests staying");
-        money += guestsProfit;
+        wallet.AddMoney(guestsProfit, "guests staying");
 
         topBar.UpdateGuestsCounter(guestsList.Count);
 
-        int dailyExpenses = dailyExpensesBase * guestsList.Count;
+        float dailyExpenses = dailyExpensesBase * guestsList.Count;
 
-        LogExpenses(dailyExpenses, "maintenance");
-        money -= dailyExpenses;
+        wallet.Pay(dailyExpenses, "maintenance");
 
         PayStaff();
 
@@ -138,6 +138,8 @@ public class Hostel : MonoBehaviour
 
     void NextDay()
     {
+        Qualities.LogAllQualities();
+
         day++;
         topBar.UpdateDayCounter(day);
 
@@ -165,18 +167,7 @@ public class Hostel : MonoBehaviour
             staffExpenses += employee.Wage;
         }
 
-        LogExpenses(staffExpenses, "staff wages");
-        money -= staffExpenses;
-    }
-
-    void LogExpenses(int expenses, string type)
-    {
-        Debug.Log($"<color=red>Paid {expenses}$ for {type}</color>");
-    }
-
-    void LogIncome(int income, string type)
-    {
-        Debug.Log($"<color=green>Got {income}$ from {type}</color>");
+        wallet.Pay(staffExpenses, "staff wages");
     }
 
     void RemoveGuest(Guest guest)
@@ -189,11 +180,14 @@ public class Hostel : MonoBehaviour
     {
         var item = GlobalAccess.GetItemDefinitions().GetDefinition(id);
         int cost = item.Price;
-        if (money >= cost)
+        if (wallet.CanAfford(cost))
         {
             if (property.AddNewItem(item.CreateInstance()))
             {
-                money -= cost;
+                wallet.Pay(cost, $"buying { item.Name }");
+
+                Qualities.ApplyItemProperties(item.ItemProperties);
+
                 topBar.UpdateSpaceCounter(property.CurrentSpace, property.TotalSpace);
             }
         }
@@ -211,5 +205,10 @@ public class Hostel : MonoBehaviour
     public Item[] FindItems(ItemId id)
     {
         return property.FindItems(id);
+    }
+
+    public Wallet GetWallet()
+    {
+        return wallet;
     }
 }

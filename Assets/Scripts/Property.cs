@@ -40,6 +40,12 @@ public class Property
 
     public bool AddNewItem(Item newItem)
     {
+        if(newItem.Definition.Id == ItemId.SpaceExtension)
+        {
+            totalSpace++;
+            return true;
+        }
+
         if (newItem.Definition.TilesNeeded <= AvailableSpace)
         {
             inventory.AddNewItem(newItem);

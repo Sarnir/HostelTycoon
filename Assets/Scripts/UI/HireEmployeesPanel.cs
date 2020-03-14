@@ -31,6 +31,8 @@ public class HireEmployeesPanel : BaseListPanel
             Employee candidate = new Employee(hostel);
             candidatesRoster.Add(candidate);
         }
+
+        RefreshContent();
     }
 
     protected override void PopulateList()

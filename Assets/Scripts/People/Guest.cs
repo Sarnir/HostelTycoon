@@ -28,15 +28,13 @@ public class Guest: Person
         }
 
         // typek korzysta z toalety <- docelowo będzie odpowiedni item i interakcja z nim
-        hostel.Cleanliness -= Random.Range(0.01f, 0.04f);
-        if (hostel.Cleanliness < 0f)
-            hostel.Cleanliness = 0f;
+        hostel.Qualities.ModifyQuality(HostelQuality.Cleanliness, Random.Range(-3, 0));
     }
 
     public float RateHostel()
     {
-        float rating = Mathf.Clamp((Random.Range(4, 10) * hostel.Cleanliness) + SatisfactionLvl, 1, 10);
-        Debug.Log($"{ Name }'s rating is { rating }");
+        float rating = Mathf.Clamp((Random.Range(4, 10) * hostel.Qualities[HostelQuality.Cleanliness] * 0.01f) + SatisfactionLvl, 1, 10);
+        Debug.Log($"{ Name }'s rating is { rating.ToString("0.00") }");
         return rating;
     }
 }

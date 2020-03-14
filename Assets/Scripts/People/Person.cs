@@ -69,7 +69,14 @@ public class Person
 
     protected Hostel hostel;
 
-    float money;
+    Wallet wallet;
+
+    // characteristics:
+    // Neatness - brudas czy ocd? <- brudasy lepiej znoszą trudne warunki, ale więcej syfią. pedanci lubią porządek
+    // Vigor - leń czy pełny energii? <- lenie wolą pozamulać, ale nie mają wielkich wymagań. hiperaktywni ciągle muszą coś robić bo się nudzą
+    // Charisma - nudziarz czy przywódca? <- ???
+    // Temperament - anioł czy diaboł? <- ???
+    // Character - zły czy dobry? <- ???
 
     public Person(Hostel hostelToStayIn)
     {
@@ -77,21 +84,21 @@ public class Person
         Sex = Random.value > 0.5f ? Sex.Male : Sex.Female;
         Avatar = Resources.Load<Sprite>("Avatars/avatar" + Random.Range(1, 6));
 
-        money = Random.Range(20f, 100f);
+        wallet = new Wallet(Random.Range(20f, 100f));
 
         hostel = hostelToStayIn;
     }
 
-    public bool Pay(float price)
+    public bool Pay(float price, string remark = null)
     {
-        if (money >= price)
+        if (wallet.CanAfford(price))
         {
-            money -= price;
+            wallet.Pay(price, hostel.GetWallet(), remark);
             return true;
         }
         else
         {
-            Debug.Log($"{ Name } can't pay { price }, he has only { money }");
+            Debug.Log($"{ Name } can't pay { price }, he has only { wallet.Money }");
             return false;
         }
     }

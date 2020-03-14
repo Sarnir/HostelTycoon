@@ -14,6 +14,8 @@ public class Item
 
     Vector2 position; // gdzie stoi na mapce
 
+    //ItemProperties properties;
+
     public Item(ItemId itemId)
     {
         id = itemId;

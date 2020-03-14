@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -9,10 +10,13 @@ public class ContextMenu : UIPanel
     [SerializeField]
     Toggle ContextMenuItemPrefab = default;
 
-    bool mouseIsOver;
+    [SerializeField]
+    ToggleGroup content = default;
 
     override protected void OnOpened()
     {
+        transform.SetAsLastSibling();
+
         // jeśli jest dirty to odśwież - fillcontent
     }
 
@@ -21,30 +25,23 @@ public class ContextMenu : UIPanel
         base.Init();
     }
 
+    // TODO: poprawić to gówno
     public void ClearMenu()
     {
-        foreach (RectTransform child in transform)
+        foreach (RectTransform child in content.transform)
         {
             Destroy(child.gameObject);
         }
     }
 
-    public void AddOption(string text, bool isSet)
+    // TODO: poprawić to gówno
+    public void AddOption(string text, int id, bool isSet, Action<int> callback)
     {
-        var menuItem = Instantiate(ContextMenuItemPrefab, this.transform);
+        var menuItem = Instantiate(ContextMenuItemPrefab, content.transform);
         menuItem.GetComponentInChildren<Text>().text = text;
-        menuItem.group = GetComponent<ToggleGroup>();
+        menuItem.group = content;
         menuItem.isOn = isSet;
-        menuItem.onValueChanged.AddListener(isOn => ToggleValueChanged(text, isOn));
-    }
-
-    void ToggleValueChanged(string text, bool isOn)
-    {
-        Debug.Log($"Option { text } was changed to { isOn }");
-        if (isOn)
-        {
-            Close();
-        }
+        menuItem.onValueChanged.AddListener(isOn => { if (isOn) callback(id); });
     }
 
     public void SetContent()

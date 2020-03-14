@@ -6,10 +6,12 @@ public class Employee: Person
 {
     public int Wage { get; private set; }
     Task assignedTask;
-    public string Title { get
+    public string Title
+    { get
         {
             return assignedTask == null ? "Freeloader" : "Handyman";
-        } }
+        }
+    }
 
     public Employee(Hostel hostel) : base(hostel)
     {
@@ -23,8 +25,10 @@ public class Employee: Person
 
     public void AssignTask(TaskType taskType)
     {
-        Task task = new Task(hostel);
+        Task task = new Task(hostel, taskType);
         assignedTask = task;
+
+        Debug.Log($"{ Name } is now { taskType }");
     }
 
     public TaskType GetCurrentTask()
@@ -36,7 +40,8 @@ public class Employee: Person
 
     public void Work()
     {
-        assignedTask.WorkOn();
+        if(assignedTask != null)
+            assignedTask.WorkOn();
     }
 
 }

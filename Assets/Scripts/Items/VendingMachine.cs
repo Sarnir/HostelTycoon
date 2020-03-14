@@ -6,22 +6,23 @@ public class VendingMachine : Item
 {
     readonly int stock_max = 50;
     int stock;
-    float price;
+    Price price;
+
+    float baseRestockCost;
 
     public VendingMachine(ItemId id): base(id)
     {
-        price = 1f;
+        price = GlobalAccess.GetAllPrices().GetPrice(PriceId.SodaCan);
         stock = stock_max;
-        Debug.Log("Vending machine of id " + id.ToString() + " created");
+        baseRestockCost = GlobalAccess.GetAllPrices().GetPrice(PriceId.WholesaleSodaCan).BasePrice;
     }
 
     public override bool Use(Person user)
     {
         if (stock > 0)
         {
-            if (user.Pay(price))
+            if (user.Pay(price.CurrentPrice, "using vending machine"))
             {
-                Debug.Log("Vending Machine USED");
                 stock--;
 
                 // daj powiadomienie że trzeba napełnić automat
@@ -34,16 +35,17 @@ public class VendingMachine : Item
         return false;
     }
 
-    public void SetPrice(float newPrice)
-    {
-        price = newPrice;
-    }
-
     public bool Restock(Hostel hostel)
     {
-        //if(hostel.buyStock())
-        stock = stock_max;
+        float restockCost = baseRestockCost * (stock_max - stock);
 
-        return true;
+        if (hostel.GetWallet().CanAfford(restockCost))
+        {
+            hostel.GetWallet().Pay(restockCost, "restocking vending machine");
+            stock = stock_max;
+            return true;
+        }
+
+        return false;
     }
 }

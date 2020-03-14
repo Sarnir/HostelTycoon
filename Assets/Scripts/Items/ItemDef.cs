@@ -1,5 +1,17 @@
 ﻿using UnityEngine;
 
+public class ItemProperty
+{
+    public HostelQuality Quality { get; private set; }
+    public int Factor { get; private set; }
+
+public ItemProperty(HostelQuality quality, int factor)
+    {
+        Quality = quality;
+        Factor = factor;
+    }
+}
+
 public class ItemDef
 {
     public ItemId Id { get; private set; }
@@ -7,16 +19,16 @@ public class ItemDef
     public int Price { get; private set; }
     public Sprite Avatar { get; private set; }
     public int TilesNeeded { get; private set; }
+    public ItemProperty[] ItemProperties { get; private set; }
 
-    // typ przedmiotu
-
-    public ItemDef(ItemId id, string name, int price, int tiles, string avatarPath)
+    public ItemDef(ItemId id, string name, int price, int tiles, string avatarPath, ItemProperty[] properties = null)
     {
         Id = id;
         Name = name;
         Price = price;
         TilesNeeded = tiles;
         Avatar = Resources.Load<Sprite>("Avatars/items/" + avatarPath);
+        ItemProperties = properties;
     }
 
     public Item CreateInstance()
