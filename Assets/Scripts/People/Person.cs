@@ -2,91 +2,41 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum Sex
+public class PersonSprite : MonoBehaviour
 {
-    Male,
-    Female
+    Person person;
+
+    public void Init(Person p)
+    {
+        person = p;
+    }
+
+    public void Destroy()
+    {
+        Destroy(gameObject);
+    }
 }
 
-public class Person
+public class Person : MonoBehaviour
 {
-    static string[] names =
-    {
-        "Malik Mckey",
-        "Chad Zobel",
-        "Daniel Willcutt",
-        "Francis Belt",
-        "Britt Bouley",
-        "Herbert Dibiase",
-        "Raphael Zickefoose",
-        "Darwin Cail",
-        "Antony Gage",
-        "Maria Trumble",
-        "Ruben Mcquade",
-        "Sean Mccracken",
-        "Dennis Lenhart",
-        "Elwood Lightcap",
-        "Sam Lovins",
-        "Deshawn Vergara",
-        "Timothy Testerman",
-        "Collin Verrett",
-        "Benito Pompey",
-        "Benjamin Voris",
-        "Beau Fahey",
-        "Lester Macdowell",
-        "Vaughn Messer",
-        "Wyatt Harville",
-        "Boyd Graham",
-        "Deandre Weikel",
-        "Sammy Wiley",
-        "Marco Eickhoff",
-        "Isiah Rodas",
-        "Kyong Trainer",
-        "Kyla Twitty",
-        "Jammie Orndorff",
-        "Tabitha Pounders",
-        "Daine Willison",
-        "Lorita Barbeau",
-        "Meredith Carabajal",
-        "Salley Rathke",
-        "Kathey Cort",
-        "Mellissa Low",
-        "Ena Wagoner",
-        "Maragaret Reinert",
-        "Onita Sturtevant",
-        "Danille Widener",
-        "Evette Riter",
-        "Hermila Turberville",
-        "Julieann Moreles",
-        "Roxann Mcginley",
-        "Maile Rye",
-        "Cherly Haworth"
-    };
-
-    public string Name;
-    public Sex Sex;
-    public Sprite Avatar;
-
+    protected PersonData data;
+    protected Sprite sprite;
+    protected Wallet wallet;
     protected Hostel hostel;
 
-    Wallet wallet;
+    public string Name { get { return data.Name; } }
+    public Sex Sex { get { return data.Sex; } }
+    public Sprite Avatar { get { return data.Avatar; } }
 
-    // characteristics:
-    // Neatness - brudas czy ocd? <- brudasy lepiej znoszą trudne warunki, ale więcej syfią. pedanci lubią porządek
-    // Vigor - leń czy pełny energii? <- lenie wolą pozamulać, ale nie mają wielkich wymagań. hiperaktywni ciągle muszą coś robić bo się nudzą
-    // Charisma - nudziarz czy przywódca? <- ???
-    // Temperament - anioł czy diaboł? <- ???
-    // Character - zły czy dobry? <- ???
-
-    public Person(Hostel hostelToStayIn)
+    public virtual void Init(Hostel hostelToStayIn, PersonData pData)
     {
-        Name = names[Random.Range(0, names.Length)];
-        Sex = Random.value > 0.5f ? Sex.Male : Sex.Female;
-        Avatar = Resources.Load<Sprite>("Avatars/avatar" + Random.Range(1, 6));
-
-        wallet = new Wallet(Random.Range(20f, 100f));
+        transform.parent = hostelToStayIn.transform;
+        transform.position = new Vector3(Random.Range(-4, 4), Random.Range(-4, 4), 0);
 
         hostel = hostelToStayIn;
+        data = pData;
+
+        wallet = new Wallet(Random.Range(20f, 100f));
     }
 
     public bool Pay(float price, string remark = null)
@@ -98,8 +48,28 @@ public class Person
         }
         else
         {
-            Debug.Log($"{ Name } can't pay { price }, he has only { wallet.Money }");
+            Debug.Log($"{ data.Name } can't pay { price }, he has only { wallet.Money }");
             return false;
         }
+    }
+
+    public PersonData GetData()
+    {
+        return data;
+    }
+
+    /*public PersonSprite Spawn()
+    {
+        if (sprite != null)
+            Debug.LogError("SPRITE IS ALREADY INSTANTIATED");
+
+        sprite = hostel.World.SpawnPerson(this);
+
+        return sprite;
+    }*/
+
+    public void Despawn()
+    {
+        Destroy(gameObject);
     }
 }

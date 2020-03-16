@@ -35,7 +35,7 @@ public class ItemPanel : MonoBehaviour
         BuyButton.onClick.AddListener(delegate { onBuyClick(itemDefId); });
     }
 
-    void OnDestroy()
+    void OnDisable()
     {
         BuyButton.onClick.RemoveAllListeners();
     }

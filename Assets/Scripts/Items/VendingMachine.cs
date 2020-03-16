@@ -10,8 +10,10 @@ public class VendingMachine : Item
 
     float baseRestockCost;
 
-    public VendingMachine(ItemId id): base(id)
+    public override void Init(ItemId itemId)
     {
+        base.Init(itemId);
+
         price = GlobalAccess.GetAllPrices().GetPrice(PriceId.SodaCan);
         stock = stock_max;
         baseRestockCost = GlobalAccess.GetAllPrices().GetPrice(PriceId.WholesaleSodaCan).BasePrice;

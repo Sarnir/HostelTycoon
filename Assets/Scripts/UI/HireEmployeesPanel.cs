@@ -8,7 +8,7 @@ public class HireEmployeesPanel : BaseListPanel
     [SerializeField]
     PersonPanel EmployeePanelPrefab = default;
 
-    List<Employee> candidatesRoster;
+    List<PersonData> candidatesRoster;
 
     protected override void Init()
     {
@@ -16,7 +16,7 @@ public class HireEmployeesPanel : BaseListPanel
 
         hostel.OnNewWeek += GenerateRoster;
         
-        candidatesRoster = new List<Employee>();
+        candidatesRoster = new List<PersonData>();
 
         GenerateRoster();
     }
@@ -28,7 +28,7 @@ public class HireEmployeesPanel : BaseListPanel
 
         for (int i = 0; i < roster; i++)
         {
-            Employee candidate = new Employee(hostel);
+            PersonData candidate = new PersonData();
             candidatesRoster.Add(candidate);
         }
 
@@ -42,16 +42,16 @@ public class HireEmployeesPanel : BaseListPanel
         foreach (var person in persons)
         {
             var newGuestPanel = Instantiate(EmployeePanelPrefab, scrollRectContent);
-            newGuestPanel.Init(person);
+            newGuestPanel.InitWithEmployeeData(person);
             newGuestPanel.OnButtonClicked(HireEmployee);
         }
     }
 
     void HireEmployee(PersonPanel panel)
     {
-        Employee employee = panel.Person as Employee;
+        Employee employee = panel.PersonData.SpawnEmployee(hostel);
         hostel.HireEmployee(employee);
-        candidatesRoster.Remove(employee);
+        candidatesRoster.Remove(panel.PersonData);
 
         panel.gameObject.SetActive(false);
         Destroy(panel);

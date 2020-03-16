@@ -42,10 +42,10 @@ public class MyStaffPanel : BaseListPanel
 
         foreach (var person in persons)
         {
-            var newGuestPanel = Instantiate(EmployeePanelPrefab, scrollRectContent);
-            newGuestPanel.Init(person);
-            newGuestPanel.ShowButton(false);
-            newGuestPanel.SelectCallback = SelectPerson;
+            var newPersonPanel = Instantiate(EmployeePanelPrefab, scrollRectContent);
+            newPersonPanel.Init(person);
+            newPersonPanel.ShowButton(false);
+            newPersonPanel.SelectCallback = SelectPerson;
         }
 
         if (persons.Length > 0)

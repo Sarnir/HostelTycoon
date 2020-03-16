@@ -15,10 +15,6 @@ public class Bed : Item
 
     public int BedNo;
 
-    public Bed(ItemId id): base(id)
-    {
-    }
-
     public override bool Use(Person user)
     {
         // zmniejsz czystość?

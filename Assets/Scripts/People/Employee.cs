@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Employee: Person
+public class Employee : Person
 {
     public int Wage { get; private set; }
     Task assignedTask;
@@ -13,9 +13,10 @@ public class Employee: Person
         }
     }
 
-    public Employee(Hostel hostel) : base(hostel)
+    public override void Init(Hostel hostel, PersonData pData)
     {
-        Wage = Random.Range(0, 100);
+        base.Init(hostel, pData);
+        Wage = pData.DesiredWage;
     }
 
     public void GiveRaise(int raise)
@@ -28,7 +29,7 @@ public class Employee: Person
         Task task = new Task(hostel, taskType);
         assignedTask = task;
 
-        Debug.Log($"{ Name } is now { taskType }");
+        Debug.Log($"{ data.Name } is now { taskType }");
     }
 
     public TaskType GetCurrentTask()
@@ -44,4 +45,11 @@ public class Employee: Person
             assignedTask.WorkOn();
     }
 
+    public static Employee Spawn(PersonData pData, Hostel hostel)
+    {
+        Employee sprite = Instantiate(Resources.Load<Employee>("Prefabs/People/LillyEmployee"));
+        sprite.Init(hostel, pData);
+
+        return sprite;
+    }
 }

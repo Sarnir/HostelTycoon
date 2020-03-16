@@ -9,6 +9,8 @@ public class Property
     // cena wynajmu/kupna ?
     // inventory
 
+    public World World;
+
     int totalSpace = 30;
 
     Inventory inventory;
@@ -33,18 +35,30 @@ public class Property
         get { return inventory.GetAllBeds().FindAll(x => x.IsTaken == false).Count; }
     }
 
-    public Property()
+    public Property(World _world)
     {
         inventory = new Inventory();
+        World = _world;
+
+        World.OnItemSpawned += ItemSpawned;
     }
 
-    public bool AddNewItem(Item newItem)
+    void ItemSpawned(Item item)
     {
-        if(newItem.Definition.Id == ItemId.SpaceExtension)
+        inventory.AddNewItem(item);
+    }
+
+    public void AddNewItem(ItemDef def)
+    {
+        Item newItem = World.SpawnItem(def);
+
+       /* if(newItem.Definition.Id == ItemId.SpaceExtension)
         {
             totalSpace++;
             return true;
         }
+
+        // czekaj na callback po postawieniu itemu
 
         if (newItem.Definition.TilesNeeded <= AvailableSpace)
         {
@@ -52,7 +66,7 @@ public class Property
             return true;
         }
 
-        return false;
+        return false;*/
     }
 
     public void RemoveItem(Item item)

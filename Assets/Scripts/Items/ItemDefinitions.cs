@@ -7,7 +7,8 @@ public enum ItemId
     LuxuryBed,
     BunkBed,
     PoolTable,
-    VendingMachine
+    VendingMachine,
+    RZUTKIxd
 }
 
 public class ItemDefinitions: IItemDefinitions
@@ -23,12 +24,12 @@ public class ItemDefinitions: IItemDefinitions
     {
         definitions = new ItemDef[]
         {
-            new ItemDef(ItemId.SpaceExtension, "Space Extension", 1000, 0, "bedCheap"),
-            new ItemDef(ItemId.CheapBed, "Cheap Bed", 400, 6, "bedCheap", new ItemProperty[] { new ItemProperty(HostelQuality.Comfort, -1) }),
-            new ItemDef(ItemId.LuxuryBed, "Luxury Bed", 800, 6, "bedLuxury", new ItemProperty[] { new ItemProperty(HostelQuality.Comfort, 1) }),
-            new ItemDef(ItemId.BunkBed, "Bunk Bed", 600, 6, "bedBunk"),
-            new ItemDef(ItemId.PoolTable, "Pool Table", 1000, 6, "poolTable", new ItemProperty[] { new ItemProperty(HostelQuality.Facilities, 1) }),
-            new ItemDef(ItemId.VendingMachine, "Vending Machine", 1200, 2, "vending")
+            new ItemDef(ItemId.SpaceExtension, "Space Extension", 1000, 0, "bedCheap", null),
+            new ItemDef(ItemId.CheapBed, "Cheap Bed", 400, 6, "bedCheap", "CheapBed", new ItemProperty[] { new ItemProperty(HostelQuality.Comfort, -1) }),
+            new ItemDef(ItemId.LuxuryBed, "Luxury Bed", 800, 6, "bedLuxury", null, new ItemProperty[] { new ItemProperty(HostelQuality.Comfort, 1) }),
+            new ItemDef(ItemId.BunkBed, "Bunk Bed", 600, 6, "bedBunk", null),
+            new ItemDef(ItemId.PoolTable, "Pool Table", 1000, 6, "poolTable", "PoolTable", new ItemProperty[] { new ItemProperty(HostelQuality.Facilities, 1) }),
+            new ItemDef(ItemId.VendingMachine, "Vending Machine", 1200, 2, "vending", "VendingMachine")
         };
     }
 

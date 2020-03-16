@@ -8,6 +8,9 @@ public class Hostel : MonoBehaviour
     [SerializeField]
     TopBar topBar = default;
 
+    [SerializeField]
+    PersonSprite personPrefab;
+
     int day;
 
     Wallet wallet;
@@ -20,14 +23,14 @@ public class Hostel : MonoBehaviour
 
     float Rating { get { return pointsGiven / (float)reviewsCount; } }
 
-    Property property;
+    //Property property;
+    public World World { get; private set; }
+    Inventory inventory;
 
     List<Guest> guestsList;
     List<Employee> staff;
 
     public HostelQualities Qualities { get; private set; }
-
-    public World World;
 
     public delegate void DateEvent();
     public event DateEvent OnNewWeek;
@@ -42,13 +45,19 @@ public class Hostel : MonoBehaviour
         get { return staff.ToArray(); }
     }
 
+    public int FreeBedsCount
+    {
+        get { return inventory.GetAllBeds().FindAll(x => x.IsTaken == false).Count; }
+    }
+
     private void Start()
     {
         GlobalAccess.SetItemDefinitions(new ItemDefinitions());
         GlobalAccess.SetPricesCollection(new PricesDefinitions());
 
-        property = new Property();
+        inventory = new Inventory();
         World = FindObjectOfType<World>();
+        World.OnItemSpawned += ItemSpawned;
 
         day = 1;
         wallet = new Wallet(13000f, money => { topBar.UpdateMoneyCounter(money); });
@@ -62,7 +71,18 @@ public class Hostel : MonoBehaviour
         
         topBar.UpdateDayCounter(day);
         topBar.UpdateGuestsCounter(0);
-        topBar.UpdateSpaceCounter(property.CurrentSpace, property.TotalSpace);
+        //topBar.UpdateSpaceCounter(property.CurrentSpace, property.TotalSpace);
+    }
+
+    Bed FindFreeBed()
+    {
+        return inventory.GetAllBeds().Find(x => x.IsTaken == false);
+    }
+    void ClearBed(int bedNo)
+    {
+        Bed bed = inventory.GetBed(bedNo);
+
+        bed.Guest = null;
     }
 
     public void ProcessDay()
@@ -88,13 +108,12 @@ public class Hostel : MonoBehaviour
         }
 
         // ludzie wchodzą
-        int guestsCheckingIn = Random.Range(0, property.FreeBedsCount + 1);
+        int guestsCheckingIn = Random.Range(0, FreeBedsCount + 1);
         float guestsProfit = 0;
 
         for(int i = 0; i < guestsCheckingIn; i++)
         {
-            Guest newGuest = new Guest(this) { LengthOfStay = Random.Range(1, 4) };
-
+            Guest newGuest = Guest.Create(this, Random.Range(1, 4));
             AddGuest(newGuest);
 
             guestsProfit += newGuest.LengthOfStay* pricePerNight.CurrentPrice;
@@ -131,7 +150,7 @@ public class Hostel : MonoBehaviour
     void AddGuest(Guest guest)
     {
         guestsList.Add(guest);
-        var bed = property.FindFreeBed();
+        var bed = FindFreeBed();
         guest.BedNo = bed.BedNo;
         bed.Guest = guest;
     }
@@ -157,6 +176,7 @@ public class Hostel : MonoBehaviour
     public void FireEmployee(Employee employee)
     {
         staff.Remove(employee);
+        employee.Despawn();
     }
 
     void PayStaff()
@@ -173,7 +193,8 @@ public class Hostel : MonoBehaviour
     void RemoveGuest(Guest guest)
     {
         guestsList.Remove(guest);
-        property.ClearBed(guest.BedNo);
+        ClearBed(guest.BedNo);
+        guest.Despawn();
     }
 
     public void BuyNewItem(ItemId id)
@@ -182,29 +203,36 @@ public class Hostel : MonoBehaviour
         int cost = item.Price;
         if (wallet.CanAfford(cost))
         {
-            if (property.AddNewItem(item.CreateInstance()))
-            {
-                wallet.Pay(cost, $"buying { item.Name }");
-
-                Qualities.ApplyItemProperties(item.ItemProperties);
-
-                topBar.UpdateSpaceCounter(property.CurrentSpace, property.TotalSpace);
-            }
+            AddNewItem(item);
         }
+    }
+
+    void ItemSpawned(Item item)
+    {
+        inventory.AddNewItem(item);
+        wallet.Pay(item.Definition.Price, $"buying { item.Definition.Name }");
+
+        Qualities.ApplyItemProperties(item.Definition.ItemProperties);
+    }
+
+    void AddNewItem(ItemDef def)
+    {
+        Item newItem = World.SpawnItem(def);
     }
 
     public Item[] GetAllItems()
     {
-        return property.GetAllItems();
+        return inventory.GetAllItems();
     }
+
     public Item FindItem(ItemId id)
     {
-        return property.FindItem(id);
+        return inventory.FindItem(id);
     }
 
     public Item[] FindItems(ItemId id)
     {
-        return property.FindItems(id);
+        return inventory.FindItems(id);
     }
 
     public Wallet GetWallet()

@@ -26,11 +26,12 @@ public class ItemListPanel: BaseListPanel
         if (itemDefs == null)
             return;
 
-        foreach(var itemDef in itemDefs)
+        foreach (var itemDef in itemDefs)
         {
             var newItemPanel = Instantiate(ItemPanelPrefab, scrollRectContent);
             newItemPanel.Init(itemDef, withPrices);
             newItemPanel.OnBuyClicked(hostel.BuyNewItem);
+            newItemPanel.OnBuyClicked(x => { Close(); });
         }
     }
 

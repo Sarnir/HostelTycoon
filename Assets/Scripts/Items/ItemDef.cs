@@ -12,44 +12,38 @@ public ItemProperty(HostelQuality quality, int factor)
     }
 }
 
+[System.Serializable]
 public class ItemDef
 {
-    public ItemId Id { get; private set; }
-    public string Name { get; private set; }
-    public int Price { get; private set; }
+    [SerializeField]
+    private ItemId id;
+    public ItemId Id { get { return id; } }
+
+    [SerializeField]
+    private string name;
+    public string Name { get { return name; } }
+
+    [SerializeField]
+    private int price;
+    public int Price { get { return price; } }
     public Sprite Avatar { get; private set; }
     public int TilesNeeded { get; private set; }
     public ItemProperty[] ItemProperties { get; private set; }
 
-    public ItemDef(ItemId id, string name, int price, int tiles, string avatarPath, ItemProperty[] properties = null)
+    [SerializeField]
+    Item prefab;
+
+    public Item Prefab { get { return prefab; } }
+
+    public ItemDef(ItemId _id, string _name, int _price, int _tiles, string _avatarPath, string _prefabPath, ItemProperty[] _properties = null)
     {
-        Id = id;
-        Name = name;
-        Price = price;
-        TilesNeeded = tiles;
-        Avatar = Resources.Load<Sprite>("Avatars/items/" + avatarPath);
-        ItemProperties = properties;
-    }
+        id = _id;
+        name = _name;
+        price = _price;
+        TilesNeeded = _tiles;
+        Avatar = Resources.Load<Sprite>("Avatars/items/" + _avatarPath);
+        ItemProperties = _properties;
 
-    public Item CreateInstance()
-    {
-        Item newInstance = null;
-
-        switch (Id)
-        {
-            case ItemId.CheapBed:
-            case ItemId.LuxuryBed:
-            case ItemId.BunkBed:
-                newInstance = new Bed(Id);
-                break;
-            case ItemId.VendingMachine:
-                newInstance = new VendingMachine(Id);
-                break;
-            default:
-                newInstance = new Item(Id);
-                break;
-        }
-
-        return newInstance;
+        prefab = Resources.Load<Item>($"Prefabs/Objects/{ _prefabPath }");
     }
 }

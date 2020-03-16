@@ -17,6 +17,7 @@ public class PersonPanel : Selectable
     Button button = default;
 
     public Person Person { get; private set; }
+    public PersonData PersonData { get; private set; }
 
     public Action<PersonPanel> SelectCallback;
 
@@ -33,11 +34,19 @@ public class PersonPanel : Selectable
     public void Init(Employee employee)
     {
         Person = employee;
+        PersonData = employee.GetData();
 
-        avatar.sprite = employee.Avatar;
-        nameText.text = employee.Name;
-        lengthOfStayText.text = employee.Sex.ToString();
-        button.GetComponentInChildren<Text>().text = $"Hire for { employee.Wage }$";
+        InitWithEmployeeData(Person.GetData());
+    }
+
+    public void InitWithEmployeeData(PersonData employeeData)
+    {
+        PersonData = employeeData;
+
+        avatar.sprite = employeeData.Avatar;
+        nameText.text = employeeData.Name;
+        lengthOfStayText.text = employeeData.Sex.ToString();
+        button.GetComponentInChildren<Text>().text = $"Hire for { employeeData.DesiredWage }$";
         button.gameObject.SetActive(true);
     }
 
