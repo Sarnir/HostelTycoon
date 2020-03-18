@@ -45,11 +45,8 @@ public class Employee : Person
             assignedTask.WorkOn();
     }
 
-    public static Employee Spawn(PersonData pData, Hostel hostel)
+    public void Fire()
     {
-        Employee sprite = Instantiate(Resources.Load<Employee>("Prefabs/People/LillyEmployee"));
-        sprite.Init(hostel, pData);
-
-        return sprite;
+        Destroy(gameObject);
     }
 }

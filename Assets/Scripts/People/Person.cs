@@ -2,23 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PersonSprite : MonoBehaviour
-{
-    Person person;
-
-    public void Init(Person p)
-    {
-        person = p;
-    }
-
-    public void Destroy()
-    {
-        Destroy(gameObject);
-    }
-}
-
 public class Person : MonoBehaviour
 {
+    protected Animator animator;
+
     protected PersonData data;
     protected Sprite sprite;
     protected Wallet wallet;
@@ -28,9 +15,16 @@ public class Person : MonoBehaviour
     public Sex Sex { get { return data.Sex; } }
     public Sprite Avatar { get { return data.Avatar; } }
 
+    private void Awake()
+    {
+        animator = GetComponent<Animator>();
+    }
+
     public virtual void Init(Hostel hostelToStayIn, PersonData pData)
     {
-        transform.parent = hostelToStayIn.transform;
+        name = pData.Name;
+
+        transform.parent = hostelToStayIn.World.transform;
         transform.position = new Vector3(Random.Range(-4, 4), Random.Range(-4, 4), 0);
 
         hostel = hostelToStayIn;
@@ -56,20 +50,5 @@ public class Person : MonoBehaviour
     public PersonData GetData()
     {
         return data;
-    }
-
-    /*public PersonSprite Spawn()
-    {
-        if (sprite != null)
-            Debug.LogError("SPRITE IS ALREADY INSTANTIATED");
-
-        sprite = hostel.World.SpawnPerson(this);
-
-        return sprite;
-    }*/
-
-    public void Despawn()
-    {
-        Destroy(gameObject);
     }
 }

@@ -12,9 +12,16 @@ public class TopBar : UIPanel
     [SerializeField]
     Text GuestsCounter = default;
     [SerializeField]
-    Text SpaceCounter = default;
+    Text TimeCounter = default;
     [SerializeField]
     Text RatingCounter = default;
+
+    Slider timeSlider;
+
+    private void Awake()
+    {
+        timeSlider = TimeCounter.GetComponentInParent<Slider>();
+    }
 
     public void UpdateDayCounter(int day)
     {
@@ -31,9 +38,17 @@ public class TopBar : UIPanel
         GuestsCounter.text = $"Guests: { guests}";
     }
 
-    public void UpdateSpaceCounter(int currentSpace, int totalSpace)
+    public void UpdateTimeCounter(int hour)
     {
-        SpaceCounter.text = $"Space: { currentSpace } / { totalSpace}";
+        if (hour > 12)
+            TimeCounter.text = $"{hour - 12}PM";
+        else
+            TimeCounter.text = $"{hour}AM";
+    }
+
+    public void UpdateTimeProgressBar(float timePercent)
+    {
+        timeSlider.value = timePercent;
     }
 
     public void UpdateRatingCounter(float rating)

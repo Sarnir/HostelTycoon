@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,24 +7,16 @@ public class World : MonoBehaviour
     [SerializeField]
     public ItemDef[] ItemDefs = null;
 
-    Item draggingItem;
-
-    [SerializeField]
-    float hoverHeight = 0f;
-
-    static float hoverOffset;
+    Hovering hoveringItem;
 
     public System.Action<Item> OnItemSpawned;
 
-    bool IsDragging { get { return draggingItem != null; } }
+    bool IsDragging { get { return hoveringItem != null; } }
 
-    // Update is called once per frame
     void Update()
     {
-        if(draggingItem != null)
+        if (IsDragging)
         {
-            draggingItem.transform.position = SnapPosition(Camera.main.ScreenToWorldPoint(Input.mousePosition), IsDragging);
-
             if (Input.GetMouseButtonDown(0))
             {
                 PlaceItem();
@@ -33,80 +24,57 @@ public class World : MonoBehaviour
         }
     }
 
-    public static Vector3 SnapPosition(Vector3 pos, bool offsetY)
-    {
-        float x = Mathf.RoundToInt(pos.x);
-        float y = Mathf.RoundToInt(pos.y);
-
-        if (offsetY)
-            y += hoverOffset;
-
-        return new Vector3(x, y, 0);
-    }
-
-    void SnapPosition(Item item)
-    {
-        item.transform.position = SnapPosition(Camera.main.ScreenToWorldPoint(Input.mousePosition), IsDragging);
-    }
-
     public Item SpawnItem(ItemDef itemDef)
     {
         Item newItem = GameObject.Instantiate(itemDef.Prefab);
         newItem.Init(itemDef.Id);
-        newItem.OnCollisionChange += DraggingCollisionChange;
+        //newItem.OnCollisionChange += DraggingCollisionChange;
 
         DragItem(newItem);
-        draggingItem.transform.parent = transform;
+        hoveringItem.transform.parent = transform;
 
         return newItem;
     }
 
-    public PersonSprite SpawnPerson(Person person)
-    {
-        PersonSprite sprite = Instantiate(Resources.Load<PersonSprite>($"Prefabs/People/Lilly"));
-        sprite.Init(person);
-
-        return sprite;
-    }
-
-    void DraggingCollisionChange()
-    {
-        if(draggingItem)
-        {
-            SetItemState(draggingItem);
-        }
-    }
-
     void PlaceItem()
     {
-        if (draggingItem.IsColliding)
+        if (hoveringItem.IsColliding)
         {
-            Destroy(draggingItem.gameObject);
-            draggingItem = null;
+            Destroy(hoveringItem.gameObject);
         }
         else
         {
-            draggingItem.Renderer.color = new Color(1f, 1f, 1f, 1f);
-            SnapPosition(draggingItem);
-            OnItemSpawned?.Invoke(draggingItem);
+            hoveringItem.StopHovering();
+            OnItemSpawned?.Invoke(hoveringItem.GetComponent<Item>());
         }
 
-        hoverOffset = 0f;
-        draggingItem = null;
+        hoveringItem = null;
     }
 
     void DragItem(Item item)
     {
-        draggingItem = item;
-        SetItemState(draggingItem);
-        hoverOffset = hoverHeight;
+        hoveringItem = item.gameObject.AddComponent<Hovering>();
     }
 
-    void SetItemState(Item item)
+    public Guest CreateGuest(Hostel hostel, int lengthOfStay)
     {
-        if(item.IsColliding)
-            item.Renderer.color = new Color(1f, 0f, 0f, 0.5f);
-        else
-            item.Renderer.color = new Color(0f, 1f, 0f, 0.5f);
+        return CreateGuest(hostel, lengthOfStay, new PersonData());
+    }
+
+    public Guest CreateGuest(Hostel hostel, int lengthOfStay, PersonData pData)
+    {
+        Guest sprite = Instantiate(Resources.Load<Guest>($"Prefabs/People/Guest"));
+        sprite.Init(hostel, pData);
+        sprite.LengthOfStay = lengthOfStay;
+
+        return sprite;
+    }
+
+    public Employee CreateEmployee(Hostel hostel, PersonData pData)
+    {
+        Employee sprite = Instantiate(Resources.Load<Employee>("Prefabs/People/Employee"));
+        sprite.Init(hostel, pData);
+
+        return sprite;
     }
 }

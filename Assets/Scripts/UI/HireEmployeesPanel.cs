@@ -14,7 +14,7 @@ public class HireEmployeesPanel : BaseListPanel
     {
         base.Init();
 
-        hostel.OnNewWeek += GenerateRoster;
+        hostel.GameTime.OnNewWeek += GenerateRoster;
         
         candidatesRoster = new List<PersonData>();
 
@@ -49,7 +49,7 @@ public class HireEmployeesPanel : BaseListPanel
 
     void HireEmployee(PersonPanel panel)
     {
-        Employee employee = panel.PersonData.SpawnEmployee(hostel);
+        Employee employee = hostel.World.CreateEmployee(hostel, panel.PersonData);
         hostel.HireEmployee(employee);
         candidatesRoster.Remove(panel.PersonData);
 
@@ -59,7 +59,7 @@ public class HireEmployeesPanel : BaseListPanel
 
     private void OnDestroy()
     {
-        hostel.OnNewWeek -= GenerateRoster;
+        hostel.GameTime.OnNewWeek -= GenerateRoster;
     }
 
     public override void RefreshContent()

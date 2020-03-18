@@ -6,27 +6,24 @@ public class Item : MonoBehaviour
 {
     private ItemId id;
 
-    SpriteRenderer rd;
-    public SpriteRenderer Renderer { get {
-            if (rd == null) rd = GetComponent<SpriteRenderer>();
-            return rd;
-        } }
+    public LayerMask LayerMask;
+
+    public SpriteRenderer Renderer { get; private set; }
 
     public ItemDef Definition { get { return GlobalAccess.GetItemDefinitions().GetDefinition(id); } }
 
-    Collider2D col;
+    public Collider2D Collider { get; private set; }
 
-    bool isColliding;
-    public bool IsColliding { get { return isColliding; } }
+    public bool InUse { get; private set; }
 
     //ItemProperties properties;
 
     public System.Action OnCollisionChange;
 
-    public void Start()
+    public void Awake()
     {
-        isColliding = false;
-        col = GetComponent<Collider2D>();
+        Collider = GetComponent<Collider2D>();
+        Renderer = GetComponentInChildren<SpriteRenderer>();
     }
 
     public virtual void Init(ItemId itemId)
@@ -36,27 +33,18 @@ public class Item : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        if(col != null)
-            Gizmos.DrawWireCube(col.bounds.center, col.bounds.size);
+        if(Collider != null)
+            Gizmos.DrawWireCube(Collider.bounds.center, Collider.bounds.size);
     }
 
-    void OnTriggerEnter2D(Collider2D col)
-     {
-         isColliding = true;
-         OnCollisionChange?.Invoke();
-     }
-
-     void OnTriggerExit2D(Collider2D col)
-     {
-         isColliding = false;
-         OnCollisionChange?.Invoke();
-     }
 
     // zazwyczaj to goście lub staff będą korzystać z rzeczy
     // to oni będą wywoływać tę metodę i np. zostawiać piniondze w automacie
     // lub pójdą spać i dostaną pluskwy xD
     public virtual bool Use(Person user)
     {
+        InUse = true;
+
         return true;
     }
 }

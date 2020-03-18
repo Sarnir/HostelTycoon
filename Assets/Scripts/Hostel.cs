@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,11 +8,6 @@ public class Hostel : MonoBehaviour
 {
     [SerializeField]
     TopBar topBar = default;
-
-    [SerializeField]
-    PersonSprite personPrefab;
-
-    int day;
 
     Wallet wallet;
     
@@ -23,17 +19,15 @@ public class Hostel : MonoBehaviour
 
     float Rating { get { return pointsGiven / (float)reviewsCount; } }
 
-    //Property property;
     public World World { get; private set; }
     Inventory inventory;
+
+    public GameTime GameTime { get; private set; }
 
     List<Guest> guestsList;
     List<Employee> staff;
 
     public HostelQualities Qualities { get; private set; }
-
-    public delegate void DateEvent();
-    public event DateEvent OnNewWeek;
 
     public Guest[] Guests
     {
@@ -45,21 +39,18 @@ public class Hostel : MonoBehaviour
         get { return staff.ToArray(); }
     }
 
-    public int FreeBedsCount
-    {
-        get { return inventory.GetAllBeds().FindAll(x => x.IsTaken == false).Count; }
-    }
-
     private void Start()
     {
         GlobalAccess.SetItemDefinitions(new ItemDefinitions());
         GlobalAccess.SetPricesCollection(new PricesDefinitions());
 
-        inventory = new Inventory();
         World = FindObjectOfType<World>();
         World.OnItemSpawned += ItemSpawned;
 
-        day = 1;
+        GameTime = World.GetComponent<GameTime>();
+        GameTime.OnDailyEvent += ProcessDay;
+
+        inventory = new Inventory();
         wallet = new Wallet(13000f, money => { topBar.UpdateMoneyCounter(money); });
         dailyExpensesBase = 10;
         pricePerNight = GlobalAccess.GetAllPrices().GetPrice(PriceId.BedPerNight);
@@ -69,36 +60,43 @@ public class Hostel : MonoBehaviour
         guestsList = new List<Guest>();
         staff = new List<Employee>();
         
-        topBar.UpdateDayCounter(day);
         topBar.UpdateGuestsCounter(0);
-        //topBar.UpdateSpaceCounter(property.CurrentSpace, property.TotalSpace);
     }
 
-    Bed FindFreeBed()
+    private void OnDestroy()
     {
-        return inventory.GetAllBeds().Find(x => x.IsTaken == false);
-    }
-    void ClearBed(int bedNo)
-    {
-        Bed bed = inventory.GetBed(bedNo);
-
-        bed.Guest = null;
+        GameTime.OnDailyEvent -= ProcessDay;
     }
 
-    public void ProcessDay()
+    public void CheckOut(Guest guest)
     {
-        // ludzie wychodzą
-        foreach(var guest in Guests)
+        // ziomek wystawia ocenę
+        AddRating(guest.RateHostel());
+
+        RemoveGuest(guest);
+    }
+
+    public void ProcessDay(DailyEvents newEvent)
+    {
+        switch (newEvent)
         {
-            guest.LengthOfStay--;
-
-            if (guest.LengthOfStay < 1)
-            {
-                // ziomek wystawia ocenę
-                AddRating(guest.RateHostel());
-
-                RemoveGuest(guest);
-            }
+            case DailyEvents.CheckOut:
+                ProcessCheckOut();
+                break;
+            case DailyEvents.CheckIn:
+                ProcessCheckIn();
+                break;
+            case DailyEvents.QuietHoursStart:
+                ProcessQuietHoursStart();
+                break;
+            case DailyEvents.NewDay:
+                ProcessNewDay();
+                break;
+            case DailyEvents.QuietHoursEnd:
+                ProcessQuietHoursEnd();
+                break;
+            default:
+                break;
         }
 
         // pracownicy pracują
@@ -107,36 +105,72 @@ public class Hostel : MonoBehaviour
             employee.Work();
         }
 
-        // ludzie wchodzą
-        int guestsCheckingIn = Random.Range(0, FreeBedsCount + 1);
-        float guestsProfit = 0;
-
-        for(int i = 0; i < guestsCheckingIn; i++)
-        {
-            Guest newGuest = Guest.Create(this, Random.Range(1, 4));
-            AddGuest(newGuest);
-
-            guestsProfit += newGuest.LengthOfStay* pricePerNight.CurrentPrice;
-        }
-
         // ludzie robią rzeczy
         int guestsCount = Guests.Length;
         for (int i = 0; i < guestsCount; i++)
         {
             Guests[i].SpendDay();
         }
+    }
+
+    void ProcessCheckOut()
+    {
+        foreach (var guest in Guests)
+        {
+            guest.LengthOfStay--;
+
+            if (guest.LengthOfStay < 1)
+            {
+                guest.CheckOut();
+            }
+        }
+
+        topBar.UpdateGuestsCounter(guestsList.Count);
+    }
+
+    void ProcessCheckIn()
+    {
+        int guestsCheckingIn = UnityEngine.Random.Range(0, inventory.FreeBedsCount + 1);
+        float guestsProfit = 0;
+
+        for (int i = 0; i < guestsCheckingIn; i++)
+        {
+            Guest newGuest = World.CreateGuest(this, UnityEngine.Random.Range(1, 4));
+            AddGuest(newGuest);
+
+            guestsProfit += newGuest.LengthOfStay * pricePerNight.CurrentPrice;
+        }
 
         wallet.AddMoney(guestsProfit, "guests staying");
 
         topBar.UpdateGuestsCounter(guestsList.Count);
+    }
 
+    void ProcessNewDay()
+    {
         float dailyExpenses = dailyExpensesBase * guestsList.Count;
 
         wallet.Pay(dailyExpenses, "maintenance");
 
         PayStaff();
 
-        NextDay();
+        Qualities.LogAllQualities();
+    }
+
+    void ProcessQuietHoursStart()
+    {
+        foreach (var guest in Guests)
+        {
+           // guest.wantsToSleep = true;
+        }
+    }
+
+    void ProcessQuietHoursEnd()
+    {
+        foreach (var guest in Guests)
+        {
+           // guest.wantsToSleep = false;
+        }
     }
 
     public void AddRating(float points)
@@ -150,22 +184,7 @@ public class Hostel : MonoBehaviour
     void AddGuest(Guest guest)
     {
         guestsList.Add(guest);
-        var bed = FindFreeBed();
-        guest.BedNo = bed.BedNo;
-        bed.Guest = guest;
-    }
-
-    void NextDay()
-    {
-        Qualities.LogAllQualities();
-
-        day++;
-        topBar.UpdateDayCounter(day);
-
-        if(day%7 == 1)
-        {
-            OnNewWeek?.Invoke();
-        }
+        guest.AssignBed(inventory.FindFreeBed());
     }
 
     public void HireEmployee(Employee newEmployee)
@@ -176,7 +195,7 @@ public class Hostel : MonoBehaviour
     public void FireEmployee(Employee employee)
     {
         staff.Remove(employee);
-        employee.Despawn();
+        employee.Fire();
     }
 
     void PayStaff()
@@ -193,8 +212,7 @@ public class Hostel : MonoBehaviour
     void RemoveGuest(Guest guest)
     {
         guestsList.Remove(guest);
-        ClearBed(guest.BedNo);
-        guest.Despawn();
+        guest.Bed.IsTaken = false;
     }
 
     public void BuyNewItem(ItemId id)

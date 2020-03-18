@@ -83,14 +83,13 @@ public class PersonData
         DesiredWage = Random.Range(0, 100);
     }
 
-    // docelowo zmienić employee i guesta na role jako komponenty ludzi
     /*public Guest SpawnGuest(Hostel hostel)
     {
         return Guest.Spawn(this, hostel) as Guest;
-    }*/
+    }
 
     public Employee SpawnEmployee(Hostel hostel)
     {
         return Employee.Spawn(this, hostel) as Employee;
-    }
+    }*/
 }
