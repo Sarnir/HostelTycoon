@@ -13,7 +13,12 @@ public class Hovering : MonoBehaviour
     const float hoverHeight = 0.2f;
     Rigidbody2D rb;
 
-    public bool IsColliding { get; private set; }
+    public System.Action<Hovering, bool> OnPlaceItem;
+
+    bool isColliding;
+    bool objectWasRotated;
+    Vector3 mousePosClick;
+    Vector3 mousePosDelta;
 
     void Start()
     {
@@ -24,14 +29,15 @@ public class Hovering : MonoBehaviour
         rb.isKinematic = true;
     }
 
+    // we need fixed update to keep up with item collisions
     void FixedUpdate()
     {
         if (posChanged)
         {
             RaycastHit2D[] hits = new RaycastHit2D[1];
-            IsColliding = item.Collider.Cast(Vector2.zero, filter, hits) > 0;
+            isColliding = item.Collider.Cast(Vector2.zero, filter, hits) > 0;
 
-            if (IsColliding)
+            if (isColliding)
                 item.Renderer.color = new Color(1f, 0f, 0f, 0.5f);
             else
                 item.Renderer.color = new Color(0f, 1f, 0f, 0.5f);
@@ -39,9 +45,36 @@ public class Hovering : MonoBehaviour
 
         lastPos = transform.position;
 
-        transform.localPosition = SnapPosition(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+        if(!Input.GetMouseButton(0))
+            transform.localPosition = SnapPosition(Camera.main.ScreenToWorldPoint(Input.mousePosition));
 
         posChanged = lastPos != transform.position;
+    }
+
+    private void Update()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            mousePosClick = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            mousePosDelta = Vector3.zero;
+            objectWasRotated = false;
+        }
+        if (Input.GetMouseButton(0))
+        {
+            mousePosDelta = Camera.main.ScreenToWorldPoint(Input.mousePosition) - mousePosClick;
+
+            if (mousePosDelta.magnitude > 0.6f)
+            {
+                objectWasRotated = true;
+                item.SetDirection(mousePosDelta);
+                posChanged = true;
+            }
+        }
+        if (Input.GetMouseButtonUp(0))
+        {
+            if (objectWasRotated == false)
+                OnPlaceItem?.Invoke(this, !isColliding);
+        }
     }
 
     Vector3 SnapPosition(Vector3 pos)

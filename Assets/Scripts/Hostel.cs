@@ -63,6 +63,11 @@ public class Hostel : MonoBehaviour
         topBar.UpdateGuestsCounter(0);
     }
 
+    private void Update()
+    {
+        Qualities[HostelQuality.Cleanliness] = World.AverageCleanliness;
+    }
+
     private void OnDestroy()
     {
         GameTime.OnDailyEvent -= ProcessDay;
@@ -100,10 +105,10 @@ public class Hostel : MonoBehaviour
         }
 
         // pracownicy pracują
-        foreach(var employee in staff)
-        {
-            employee.Work();
-        }
+        //foreach(var employee in staff)
+        //{
+        //    employee.Work();
+        //}
 
         // ludzie robią rzeczy
         int guestsCount = Guests.Length;
@@ -131,19 +136,42 @@ public class Hostel : MonoBehaviour
     void ProcessCheckIn()
     {
         int guestsCheckingIn = UnityEngine.Random.Range(0, inventory.FreeBedsCount + 1);
-        float guestsProfit = 0;
+        Debug.Log("We expect " + guestsCheckingIn + " guests today");
+        //float guestsProfit = 0;
 
         for (int i = 0; i < guestsCheckingIn; i++)
         {
-            Guest newGuest = World.CreateGuest(this, UnityEngine.Random.Range(1, 4));
+            /*Guest newGuest = World.CreateGuest(this, UnityEngine.Random.Range(1, 4));
             AddGuest(newGuest);
 
-            guestsProfit += newGuest.LengthOfStay * pricePerNight.CurrentPrice;
+            guestsProfit += newGuest.LengthOfStay * pricePerNight.CurrentPrice;*/
+
+            StartCoroutine(CreateGuestAtRandomTime());
         }
 
-        wallet.AddMoney(guestsProfit, "guests staying");
+        //wallet.AddMoney(guestsProfit, "guests staying");
 
+        //topBar.UpdateGuestsCounter(guestsList.Count);
+    }
+
+    void CheckIn(Guest guest)
+    {
+        AddGuest(guest);
+
+        var profit = guest.LengthOfStay * pricePerNight.CurrentPrice;
+        wallet.AddMoney(profit, $"{ guest.Name } checking in");
         topBar.UpdateGuestsCounter(guestsList.Count);
+    }
+
+    IEnumerator CreateGuestAtRandomTime()
+    {
+        float time = UnityEngine.Random.Range((float)DailyEvents.CheckIn, (float)DailyEvents.QuietHoursStart);
+        while (GameTime.GetExactTime() < time)
+        {
+            yield return new WaitForSeconds(0.25f);
+        }
+
+        CheckIn(World.CreateGuest(this, UnityEngine.Random.Range(1, 4)));
     }
 
     void ProcessNewDay()

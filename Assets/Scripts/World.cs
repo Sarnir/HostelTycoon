@@ -2,58 +2,129 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum Direction
+{
+    Left,
+    Up,
+    Right,
+    Down
+}
+
 public class World : MonoBehaviour
 {
+    Tile[,] tiles;
+
+    const int X_MAX = 27;
+    const int Y_MAX = 20;
+
     [SerializeField]
     public ItemDef[] ItemDefs = null;
 
-    Hovering hoveringItem;
-
     public System.Action<Item> OnItemSpawned;
 
-    bool IsDragging { get { return hoveringItem != null; } }
+    public Transform SpawnPoint;
 
-    void Update()
+    public Tile FloorTilePrefab;
+
+    public float AverageCleanliness { get; private set; }
+
+    private void Awake()
     {
-        if (IsDragging)
+        SetupTiles();
+    }
+
+    private void SetupTiles()
+    {
+        tiles = new Tile[X_MAX, Y_MAX];
+
+        var floorObj = new GameObject("Floor");
+        floorObj.transform.parent = transform;
+
+        // fill tiles array
+        for (int y = 0; y < Y_MAX; y++)
         {
-            if (Input.GetMouseButtonDown(0))
+            for (int x = 0; x < X_MAX; x++)
             {
-                PlaceItem();
+                var tile = Instantiate(FloorTilePrefab, floorObj.transform);
+                tile.transform.position = new Vector3(x, y, 0);
+                tiles[x, y] = tile;
+            }
+        }
+
+        // setup neighbors
+        for(int y = 0; y < Y_MAX; y++)
+        {
+            for (int x = 0; x < X_MAX; x++)
+            {
+                if (tiles[x, y] != null)
+                {
+                    if (y + 1 < Y_MAX && tiles[x, y + 1] != null)
+                        tiles[x, y].SetNeighbor(Direction.Up, tiles[x, y + 1]);
+                    if (y - 1 >= 0 && tiles[x, y - 1] != null)
+                        tiles[x, y].SetNeighbor(Direction.Down, tiles[x, y - 1]);
+                    if (x + 1 < X_MAX && tiles[x + 1, y] != null)
+                        tiles[x, y].SetNeighbor(Direction.Right, tiles[x + 1, y]);
+                    if (x - 1 >= 0 && tiles[x - 1, y] != null)
+                        tiles[x, y].SetNeighbor(Direction.Left, tiles[x - 1, y]);
+                }
             }
         }
     }
 
+    public float dirtDelta = 0.0001f;
+
+    private void Update()
+    {
+        float sum = 0f;
+        int num = 0;
+
+        foreach (var tile in tiles)
+        {
+            if (tile != null)
+            {
+                tile.IncrementDirt(dirtDelta * Time.deltaTime);
+                sum += tile.Dirtyness;
+                num++;
+            }
+        }
+
+        float avgDirt = sum / num;
+
+        AverageCleanliness = 1f - avgDirt;
+    }
+
+    public Tile GetTileAtPosition(int x, int y)
+    {
+        return tiles[x, y];
+    }
+
     public Item SpawnItem(ItemDef itemDef)
     {
-        Item newItem = GameObject.Instantiate(itemDef.Prefab);
+        Item newItem = Instantiate(itemDef.Prefab);
         newItem.Init(itemDef.Id);
-        //newItem.OnCollisionChange += DraggingCollisionChange;
-
         DragItem(newItem);
-        hoveringItem.transform.parent = transform;
-
+        
         return newItem;
     }
 
-    void PlaceItem()
+    void PlaceItem(Hovering item, bool isSuccess)
     {
-        if (hoveringItem.IsColliding)
+        if (isSuccess)
         {
-            Destroy(hoveringItem.gameObject);
+            item.StopHovering();
+            OnItemSpawned?.Invoke(item.GetComponent<Item>());
         }
         else
         {
-            hoveringItem.StopHovering();
-            OnItemSpawned?.Invoke(hoveringItem.GetComponent<Item>());
+            Destroy(item.gameObject);
         }
-
-        hoveringItem = null;
     }
 
     void DragItem(Item item)
     {
-        hoveringItem = item.gameObject.AddComponent<Hovering>();
+        var instance = item.gameObject.AddComponent<Hovering>();
+        instance.transform.parent = transform;
+        instance.OnPlaceItem += PlaceItem;
     }
 
     public Guest CreateGuest(Hostel hostel, int lengthOfStay)

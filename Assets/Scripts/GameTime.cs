@@ -56,6 +56,11 @@ public class GameTime : MonoBehaviour
         topBar.UpdateTimeProgressBar(elapsedTime / GameHourInSeconds);
     }
 
+    public float GetExactTime()
+    {
+        return hour + (elapsedTime / GameHourInSeconds);
+    }
+
     void IncrementHour()
     {
         hour++;
@@ -78,7 +83,7 @@ public class GameTime : MonoBehaviour
         lastDailyEvent = currentEvent;
     }
 
-    public void NextDay()
+    void NextDay()
     {
         hour = 1;
         day++;
@@ -92,5 +97,13 @@ public class GameTime : MonoBehaviour
 
         topBar.UpdateTimeCounter(hour);
         topBar.UpdateDayCounter(day);
+    }
+
+    public void ForceNextDay()
+    {
+        do
+        {
+            IncrementHour();
+        } while (hour != 1);
     }
 }

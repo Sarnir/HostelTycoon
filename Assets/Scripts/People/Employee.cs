@@ -5,11 +5,11 @@ using UnityEngine;
 public class Employee : Person
 {
     public int Wage { get; private set; }
-    Task assignedTask;
+    TaskType assignedTask;
     public string Title
     { get
         {
-            return assignedTask == null ? "Freeloader" : "Handyman";
+            return assignedTask == TaskType.Idle ? "Freeloader" : "Handyman";
         }
     }
 
@@ -17,6 +17,7 @@ public class Employee : Person
     {
         base.Init(hostel, pData);
         Wage = pData.DesiredWage;
+        assignedTask = TaskType.Idle;
     }
 
     public void GiveRaise(int raise)
@@ -24,26 +25,24 @@ public class Employee : Person
         Wage += raise;
     }
 
-    public void AssignTask(TaskType taskType)
+    public void AssignTask(TaskType newTask)
     {
-        Task task = new Task(hostel, taskType);
-        assignedTask = task;
+        //Task task = new Task(hostel, taskType);
+        assignedTask = newTask;
 
-        Debug.Log($"{ data.Name } is now { taskType }");
+        Debug.Log($"{ data.Name } is now { newTask }");
     }
 
     public TaskType GetCurrentTask()
     {
-        if (assignedTask == null)
-            return TaskType.Idle;
-        return assignedTask.TaskType;
+        return assignedTask;
     }
 
-    public void Work()
+    /*public void Work()
     {
         if(assignedTask != null)
             assignedTask.WorkOn();
-    }
+    }*/
 
     public void Fire()
     {

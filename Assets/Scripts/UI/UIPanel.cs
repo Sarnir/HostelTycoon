@@ -20,6 +20,14 @@ public class UIPanel : MonoBehaviour
         this.gameObject.SetActive(true);
     }
 
+    public void Toggle()
+    {
+        if (gameObject.activeInHierarchy)
+            Close();
+        else
+            Open();
+    }
+
     virtual protected void Init()
     {
         needsInit = false;

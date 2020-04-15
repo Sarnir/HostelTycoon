@@ -12,8 +12,12 @@ GameObject:
   - component: {fileID: 7384737608680084111}
   - component: {fileID: 7384737608680084110}
   - component: {fileID: -3112536085175644962}
+  - component: {fileID: -7411847300962809560}
+  - component: {fileID: -4955597422072485535}
+  - component: {fileID: 8739277392075856901}
+  - component: {fileID: 6388349656694267741}
   m_Layer: 0
-  m_Name: LillyGuest
+  m_Name: Guest
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -69,16 +73,16 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: -1464553893
-  m_SortingLayer: -1
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 9171186278391944589, guid: b3ffb494eeeba404fa72af58e04c0041,
+  m_Sprite: {fileID: -3926369800878928850, guid: 67a559f1921fc86468d3a98e8493f80e,
     type: 3}
   m_Color: {r: 0.31318974, g: 0.9622642, b: 0.40839994, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 0.16, y: 0.32}
+  m_Size: {x: 1, y: 2}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -115,6 +119,83 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f90aeab048619f458b2c5a843510c96, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Animator: {fileID: 0}
+  speed: 1
+  desiredPosition: {x: 0, y: 0}
+  CurrentTile: {fileID: 0}
   LengthOfStay: 0
-  SatisfactionLvl: 0
-  BedNo: 0
+  sleepingNeedGrowthRate: 0.00013
+  SleepIncreaseModifier: 1
+--- !u!50 &-7411847300962809560
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7384737608680084108}
+  m_BodyType: 1
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
+--- !u!114 &-4955597422072485535
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7384737608680084108}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8cf09bc1e374fe742afdc8412d00e4dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentState: {fileID: 11400000, guid: 64b935f7d0cb55c478b6ad8f2c783aaf, type: 2}
+  Agent: {fileID: 0}
+--- !u!61 &8739277392075856901
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7384737608680084108}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0.011241078, y: 0.055997133}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.2}
+    oldSize: {x: 1, y: 2}
+    newSize: {x: 1, y: 2}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 0.5239327, y: 0.2754345}
+  m_EdgeRadius: 0
+--- !u!114 &6388349656694267741
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7384737608680084108}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de5953ddc7ad62e46adf2f7f82661ff1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

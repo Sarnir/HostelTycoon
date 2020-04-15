@@ -31,8 +31,8 @@ public class Task
             case TaskType.FrontDesk:
                 break;
             case TaskType.Cleaning:
-                hostel.Qualities[HostelQuality.Cleanliness] += Random.Range(1, 4);
-                Debug.Log($"Hostel cleanliness in now { hostel.Qualities[HostelQuality.Cleanliness] }%");
+                hostel.Qualities[HostelQuality.Cleanliness] += Random.Range(0.01f, 0.04f);
+                Debug.Log($"Hostel cleanliness in now { hostel.Qualities[HostelQuality.Cleanliness] * 100f }%");
                 break;
             case TaskType.Maintenance:
                 var vendingMachines = hostel.FindItems(ItemId.VendingMachine);

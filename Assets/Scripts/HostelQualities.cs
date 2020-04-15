@@ -9,38 +9,38 @@ public enum HostelQuality
     ValueForMoney,
     Facilities,
     //---------- to były obiektywne staty
-    Luxurious, // 100 - ąę, 0 - hipi
-    Wildness // 100 party all night, 0 expaci czytają książki
+    Luxurious, // 1 - ąę, 0 - hipi
+    Wildness // 1 party all night, 0 expaci czytają książki
     // --------- to były style hostelu
 }
 
 public class HostelQualities
 {
-    Dictionary<HostelQuality, int> qualities;
+    Dictionary<HostelQuality, float> qualities;
 
     public HostelQualities()
     {
-        qualities = new Dictionary<HostelQuality, int>();
+        qualities = new Dictionary<HostelQuality, float>();
         int qualitiesCount = System.Enum.GetNames(typeof(HostelQuality)).Length;
 
         for (int i = 0; i < qualitiesCount; i++)
         {
-            qualities.Add((HostelQuality)i, 50);
+            qualities.Add((HostelQuality)i, 0.5f);
         }
     }
 
-    public int this[HostelQuality q]
+    public float this[HostelQuality q]
     {
-        get { return Mathf.Clamp(qualities[q], 0, 100); }
+        get { return Mathf.Clamp01(qualities[q]); }
         set { qualities[q] = value; }
     }
 
-    public void ModifyQuality(HostelQuality q, int factor)
+    public void ModifyQuality(HostelQuality q, float factor)
     {
         qualities[q] += factor;
     }
 
-    public int GetQuality(HostelQuality q)
+    public float GetQuality(HostelQuality q)
     {
         return qualities[q];
     }
