@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: -6922527368678845090}
   - component: {fileID: 6526086597280517733}
   - component: {fileID: -7366139382656256786}
+  - component: {fileID: 2292188356532752249}
   m_Layer: 0
   m_Name: Employee
   m_TagString: Untagged
@@ -123,7 +124,6 @@ MonoBehaviour:
   hostel: {fileID: 0}
   speed: 1
   desiredPosition: {x: 0, y: 0}
-  CurrentTile: {fileID: 0}
   sleepingNeedGrowthRate: 0.00013
   SleepIncreaseModifier: 1
 --- !u!50 &4039251539539233020
@@ -172,10 +172,10 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.011241078, y: 0.055997133}
+  m_Offset: {x: 0.0007045269, y: 0.64}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.2}
+    pivot: {x: 0.5, y: 0.165}
     oldSize: {x: 1, y: 2}
     newSize: {x: 1, y: 2}
     adaptiveTilingThreshold: 0.5
@@ -183,7 +183,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.5239327, y: 0.2754345}
+  m_Size: {x: 0.6295576, y: 1.3126919}
   m_EdgeRadius: 0
 --- !u!114 &-7366139382656256786
 MonoBehaviour:
@@ -199,3 +199,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   currentState: {fileID: 11400000, guid: 64b935f7d0cb55c478b6ad8f2c783aaf, type: 2}
   Agent: {fileID: 0}
+--- !u!114 &2292188356532752249
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7384737608680084108}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c58dea825442b8a42846c44ab23265c7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

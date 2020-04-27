@@ -14,8 +14,8 @@ public class World : MonoBehaviour
 {
     Tile[,] tiles;
 
-    const int X_MAX = 27;
-    const int Y_MAX = 20;
+    public int X_MAX = 27;
+    public int Y_MAX = 20;
 
     [SerializeField]
     public ItemDef[] ItemDefs = null;
@@ -78,7 +78,7 @@ public class World : MonoBehaviour
         float sum = 0f;
         int num = 0;
 
-        foreach (var tile in tiles)
+        /*foreach (var tile in tiles)
         {
             if (tile != null)
             {
@@ -86,7 +86,7 @@ public class World : MonoBehaviour
                 sum += tile.Dirtyness;
                 num++;
             }
-        }
+        }*/
 
         float avgDirt = sum / num;
 
@@ -96,6 +96,11 @@ public class World : MonoBehaviour
     public Tile GetTileAtPosition(int x, int y)
     {
         return tiles[x, y];
+    }
+
+    public Tile GetTileAtPosition(float x, float y)
+    {
+        return GetTileAtPosition(Mathf.RoundToInt(x), Mathf.RoundToInt(y));
     }
 
     public Item SpawnItem(ItemDef itemDef)

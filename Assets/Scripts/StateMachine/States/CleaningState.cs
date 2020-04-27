@@ -18,6 +18,8 @@ public class CleaningState : State
             newY = oldPos.y - distanceToNewPos.y * 2f;
 
         controller.Agent.desiredPosition = new Vector2(newX, newY);
+
+        controller.Agent.Animator.SetBool("IsCleaning", true);
     }
 
     public override void UpdateState(StateMachine controller)
@@ -30,14 +32,19 @@ public class CleaningState : State
 
     private void Clean(StateMachine controller)
     {
-        controller.Agent.CurrentTile.IncrementDirt(-0.05f);
+        Tile floorTile = controller.Agent.CurrentTile;
+        if (floorTile != null)
+        {
+            floorTile.IncrementDirt(-0.05f);
 
-        if (controller.Agent.CurrentTile.Dirtyness < 0.01f)
-            SetNewDestination(controller);
+            if (floorTile.Dirtyness < 0.01f)
+                SetNewDestination(controller);
+        }
     }
 
     public override void ExitState(StateMachine controller)
     {
+        controller.Agent.Animator.SetBool("IsCleaning", false);
     }
 
     void SetNewDestination(StateMachine controller)
@@ -49,7 +56,8 @@ public class CleaningState : State
         {
             if (nbs[i] != null)
             {
-                if (nextTile == null || nextTile.Dirtyness < nbs[i].Dirtyness)
+                // TODO: coś z tym trzeba zrobić :(((
+                if (nextTile == null )//|| (nextTile is FloorTile && nextTile.Dirtyness < nbs[i].Dirtyness))
                 {
                     if(nbs[i].IsEmpty)
                         nextTile = nbs[i];

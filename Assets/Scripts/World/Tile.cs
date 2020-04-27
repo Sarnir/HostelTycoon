@@ -35,7 +35,7 @@ public class Tile : MonoBehaviour
 
         sr.material.SetFloat("_Strength", Dirtyness * MAX_DIRT);
 
-        foreach (var nb in Neighbors)
+        foreach (Tile nb in Neighbors)
         {
             if(nb != null)
                 nb.UpdateNeighborsDirtyness();

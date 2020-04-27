@@ -20,7 +20,7 @@ public class Person : MonoBehaviour
     [HideInInspector]
     public Vector2 desiredPosition;
 
-    public Tile CurrentTile;
+    public Tile CurrentTile { get { return hostel.World.GetTileAtPosition(rb.position.x, rb.position.y); } }
 
     public Vector2 CurrentPosition {  get { return rb.position; } }
 
@@ -36,6 +36,11 @@ public class Person : MonoBehaviour
     public float SleepingNeed { get; private set; }
 
     public bool IsOut { get { return !sr.enabled; } set { sr.enabled = !value; } }
+
+    public int MoneyAmount { get { return (int)wallet.Money; } }
+    public string CurrentState { get { return stateMachine.CurrentStateString; } }
+
+    public Vector2 CenterPosition { get { return sr.bounds.center; } }
 
     private void Awake()
     {
@@ -92,7 +97,8 @@ public class Person : MonoBehaviour
             Animator.SetFloat("DirectionX", direction.x);
             Animator.SetFloat("DirectionY", direction.y);
 
-            rb.MovePosition(Vector2.up * speed * Time.deltaTime);
+            //?????? czemu to służy
+            //rb.MovePosition(Vector2.up * speed * Time.deltaTime);
         }
 
         SleepingNeed += sleepingNeedGrowthRate * Time.timeScale * SleepIncreaseModifier;
@@ -102,19 +108,13 @@ public class Person : MonoBehaviour
     {
         if ((rb.position - desiredPosition).sqrMagnitude <= 0.0001f)
             Stop();
-
-        rb.MovePosition(rb.position + direction * speed * Time.fixedDeltaTime);
+        else
+            rb.MovePosition(rb.position + direction * speed * Time.fixedDeltaTime);
     }
 
     void Stop()
     {
         direction = Vector2.zero;
-    }
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.CompareTag("Floor"))
-            CurrentTile = collision.GetComponent<Tile>();
     }
 
     private void OnDrawGizmosSelected()

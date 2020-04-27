@@ -6,8 +6,7 @@ using UnityEngine.UI;
 
 public class Hostel : MonoBehaviour
 {
-    [SerializeField]
-    TopBar topBar = default;
+    public UIManager UIManager = default;
 
     Wallet wallet;
     
@@ -39,6 +38,12 @@ public class Hostel : MonoBehaviour
         get { return staff.ToArray(); }
     }
 
+    private void Awake()
+    {
+        if (UIManager == null)
+            UIManager = FindObjectOfType<UIManager>();
+    }
+
     private void Start()
     {
         GlobalAccess.SetItemDefinitions(new ItemDefinitions());
@@ -51,7 +56,7 @@ public class Hostel : MonoBehaviour
         GameTime.OnDailyEvent += ProcessDay;
 
         inventory = new Inventory();
-        wallet = new Wallet(13000f, money => { topBar.UpdateMoneyCounter(money); });
+        wallet = new Wallet(13000f, money => { UIManager.UITopBar.UpdateMoneyCounter(money); });
         dailyExpensesBase = 10;
         pricePerNight = GlobalAccess.GetAllPrices().GetPrice(PriceId.BedPerNight);
 
@@ -59,8 +64,8 @@ public class Hostel : MonoBehaviour
 
         guestsList = new List<Guest>();
         staff = new List<Employee>();
-        
-        topBar.UpdateGuestsCounter(0);
+
+        UIManager.UITopBar.UpdateGuestsCounter(0);
     }
 
     private void Update()
@@ -130,7 +135,7 @@ public class Hostel : MonoBehaviour
             }
         }
 
-        topBar.UpdateGuestsCounter(guestsList.Count);
+        UIManager.UITopBar.UpdateGuestsCounter(guestsList.Count);
     }
 
     void ProcessCheckIn()
@@ -160,7 +165,7 @@ public class Hostel : MonoBehaviour
 
         var profit = guest.LengthOfStay * pricePerNight.CurrentPrice;
         wallet.AddMoney(profit, $"{ guest.Name } checking in");
-        topBar.UpdateGuestsCounter(guestsList.Count);
+        UIManager.UITopBar.UpdateGuestsCounter(guestsList.Count);
     }
 
     IEnumerator CreateGuestAtRandomTime()
@@ -206,7 +211,7 @@ public class Hostel : MonoBehaviour
         pointsGiven += points;
         reviewsCount++;
 
-        topBar.UpdateRatingCounter(Rating);
+        UIManager.UITopBar.UpdateRatingCounter(Rating);
     }
 
     void AddGuest(Guest guest)

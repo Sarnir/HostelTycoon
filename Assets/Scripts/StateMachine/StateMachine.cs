@@ -13,6 +13,7 @@ public class StateMachine : MonoBehaviour
     float timer;
 
     public bool TimerElapsed { get { return timer < 0f; } }
+    public string CurrentStateString { get { return currentState.name; } }
 
     private void Start()
     {
